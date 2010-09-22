@@ -1,16 +1,24 @@
 #include"sokoban-lappis-solver.h"
 
-int main(){
-    
+
+int int_bits = sizeof(int)*8;
+
+void solve_sokoban(char *buffer, int buf_size){
+
+    cout << "begin" << endl;   
+ 
     vector< string > board;
 
     //Read and get the initial board
 
-    int board_width = read_board(board);
+    int board_width = read_board(buffer,buf_size,board);
+
+    for(int i=0;i<board.size();i++)
+        cout << board[i] << endl;
 
     int *abs_to_rel_table, *rel_to_abs_table, *goals_pos;
 
-    Node *init_node;
+    soko_node *init_node;
 
     int num_cells = precompute_board(
                         board_width, board, abs_to_rel_table,
@@ -39,30 +47,35 @@ int main(){
     init_node->print( board_height,board_width, num_cells,
                       abs_to_rel_table);
 
-    return 0;
 }
 
-int read_board( vector< string > &board ){
-    string aux;
+int read_board( char* buffer, int buf_size, vector< string > &board ){
     board.clear();
     int n = 0;
-    
-    while( getline(cin, aux) ){
-        board.push_back(aux);
-        n = max( n, (int)aux.length() );
+    int m = 0;
+    int k = 0;
+
+    while(k<buf_size){
+        string s = "";
+        while(buffer[k]!='\n' && buffer[k]!='\0')
+            s += buffer[k++];
+        
+        board.push_back(s);
+        n = max(n,(int)s.length());
+        k++;
     }
-    
+
     return n;
 }
 
 
 int precompute_board(int board_width, vector< string > &board,
 		     int *&abs_to_rel_table, int *&rel_to_abs_table,
-		     int *&goals_pos, Node *&init_node ) {
+		     int *&goals_pos, soko_node *&init_node ) {
 
     int board_size = board.size() * board_width;
-    int lists_size = board_size/32;
-    if (board_size%32 != 0) lists_size++;
+    int lists_size = board_size/int_bits;
+    if (board_size%int_bits != 0) lists_size++;
     int guy_x, guy_y, num_cell=0;
     const int moves[4][2] = {{1, 0},{0, 1},{-1, 0},{0,-1}};
     char c;
@@ -71,7 +84,7 @@ int precompute_board(int board_width, vector< string > &board,
     abs_to_rel_table = (int*) malloc(sizeof(int) * board_size);
     rel_to_abs_table = (int*) malloc(sizeof(int)* board_size);
     goals_pos = (int*) malloc(lists_size*sizeof(int));
-    init_node = new Node();
+    init_node = new soko_node();
     init_node->area = (int*) malloc(lists_size*sizeof(int));
     init_node->box_pos = (int*) malloc(lists_size*sizeof(int));
     
@@ -124,8 +137,8 @@ int precompute_board(int board_width, vector< string > &board,
     for(int j=0; j<lists_size; j++){
 	int i=0;
 	int mask = 1;
-	while(i<32){
-	    if (mask & goals_pos[j]) cout << j*32 + i << " ";
+	while(i<int_bits){
+	    if (mask & goals_pos[j]) cout << j*int_bits + i << " ";
 	    mask <<= 1;
 	    i++;
 	}
@@ -136,8 +149,8 @@ int precompute_board(int board_width, vector< string > &board,
     for(int j=0; j<lists_size; j++){
 	int i=0;
 	int mask = 1;
-	while(i<32){
-	    if (mask &(init_node->area[j])) cout << j*32 + i << " ";
+	while(i<int_bits){
+	    if (mask &(init_node->area[j])) cout << j*int_bits + i << " ";
 	    mask <<= 1;
 	    i++;
 	}
@@ -147,8 +160,8 @@ int precompute_board(int board_width, vector< string > &board,
     for(int j=0; j<lists_size; j++){
 	int i=0;
 	int mask = 1;
-	while(i<32){
-	    if (mask & (init_node->box_pos[j])) cout << j*32 + i << " ";
+	while(i<int_bits){
+	    if (mask & (init_node->box_pos[j])) cout << j*int_bits + i << " ";
 	    mask <<= 1;
 	    i++;
 	}
@@ -166,8 +179,6 @@ int precompute_board(int board_width, vector< string > &board,
     cout << "Kevv part end here" << endl << endl;
     return num_cell;
 }
-
-//...........KEVIN FUNCTIONs............
 
 void dfs(vector< string > &board, int *abs_to_rel_table, 
 	 int *rel_to_abs_table, int *goals_pos, int *box_pos,
@@ -212,17 +223,10 @@ void dfs(vector< string > &board, int *abs_to_rel_table,
 
 inline void add_to_list(int* liste, int index){
     int val;
-    int u = index / 32;
-    val = (liste[u] | (1<<(index - 32*u)));
+    int u = index / int_bits;
+    val = (liste[u] | (1<<(index - int_bits*u)));
     liste[u] = val;
 }
-
-
-
-//...........END KEVIN FUNCTIONs............
-
-
-//...........CARLOS FUNCTIONs............
 
 void precompute_neighbors(
                     int board_height, int board_width, int num_cells,
@@ -270,21 +274,21 @@ void precompute_neighbors(
 
 void compute_area(  int num_cells, 
                     int (*neighbors)[4], int *num_neighbors,
-                    int *stack_arr, Node *node ){
+                    int *stack_arr, soko_node *node ){
 
-    int arr_size = num_cells/32;
-    if( num_cells%32 !=0 ) arr_size++;
+    int arr_size = num_cells/int_bits;
+    if( num_cells%int_bits !=0 ) arr_size++;
 
     //find a valid position in the node to start with
     int p1 = 0;
     int p2 = 0;
     int mask = 1;
     while(true){
-        while( p2<32 && !( node->area[p1] & mask ) ){
+        while( p2<int_bits && !( node->area[p1] & mask ) ){
             p2++;
             mask<<=1;
         }
-        if(p2<32) break;
+        if(p2<int_bits) break;
         p1++;
     }
 
@@ -293,7 +297,7 @@ void compute_area(  int num_cells,
     int st_sz = 0; //The stack's size
 
     //push the first element
-    stack_arr[st_sz++]= p1*32 + p2;
+    stack_arr[st_sz++]= p1*int_bits + p2;
 
     while( st_sz != 0 ){
 
@@ -304,8 +308,8 @@ void compute_area(  int num_cells,
         for(int i=0; i<num_neighbors[current_cell]; i++){
 
             int neig_cell = neighbors[current_cell][i];
-            p1 = neig_cell/32;
-            p2 = neig_cell%32;
+            p1 = neig_cell/int_bits;
+            p2 = neig_cell%int_bits;
             mask = 1<<p2;
 
             if( !( node->area[p1]&mask ) ){
@@ -319,36 +323,5 @@ void compute_area(  int num_cells,
         }
     }
 }
-
-void Node :: print( int board_height, int board_width,
-                    int num_cells, int *abs_to_rel_table ){
-
-    //Iterate through the abs_to_rel_table
-    for(int i=0; i<board_height ; i++){
-        for(int j=0; j<board_width ; j++){
-
-            int rel_value = abs_to_rel_table[i*board_width + j];
-            
-            if( rel_value == -1 ){
-                cout << "#";
-            }
-            else {
-                int p1 = rel_value/32;
-                int p2 = rel_value%32;
-
-                bool box = this->box_pos[p1] & (1<<p2);
-                bool guy = this->area[p1] & (1<<p2);
-
-                if(box && guy)  cout << "x";
-                else if(guy)    cout << "*";
-                else if(box)    cout << "$";
-                else            cout << " ";
-            }
-        }
-        cout << endl;
-    }
-}
-
-//...........END CARLOS FUNCTIONs............
 
 
