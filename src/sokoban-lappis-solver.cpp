@@ -80,7 +80,7 @@ int precompute_board(int board_width, vector< string > &board,
 	//interprete every character of the line
 	for(int j=0; j<board_width; j++){
 	    c = board[i][j];
-	    if (c == GUYCHAR){
+	    if ((c == GUYCHAR) || (c == GUYGOALCHAR)){
 		guy_x = j;
 		guy_y = i;
 	    }
@@ -107,7 +107,7 @@ int precompute_board(int board_width, vector< string > &board,
     for(int i=0; i<board_width*board.size();i++){
 	if (i%board_width == 0) cout << endl;
 	switch (abs_to_rel_table[i]){
-	case WALL:
+	case -1:
 	    cout<< " " << WALLCHAR;
 	    break;
 	default:
@@ -170,10 +170,17 @@ void dfs(vector< string > &board, int *abs_to_rel_table,
     switch(board[y][x]){
     case WALLCHAR:
 	return;
+    case GUYGOALCHAR:
+	add_to_list(goals_pos, c);
+	break;
     case GOALCHAR:
 	add_to_list(goals_pos, c);
 	break;
-    case BLOCKCHAR:
+    case BOXGOALCHAR:
+	add_to_list(goals_pos, c);
+	add_to_list(box_pos, c);
+	break;
+    case BOXCHAR:
 	add_to_list(box_pos, c);
 	break;
     }
