@@ -61,12 +61,9 @@ int precompute_board(
 #define WALLCHAR '#'
 #define GOALCHAR '.'
 #define GUYCHAR '@'
-#define BLOCKCHAR '$'
-#define DUNNO -2
-#define WALL -1
-#define INSIDE 0
-#define BLOCK 1
-#define GOAL 2
+#define BOXCHAR '$'
+#define BOXGOALCHAR '*'
+#define GUYGOALCHAR '+'
 
 /* flood the board to find which cells are inside
  * @param board             The board of the game (as a vector of
