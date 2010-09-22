@@ -51,6 +51,7 @@ int read_board( vector< string > &board ){
     return n;
 }
 
+
 int precompute_board(int board_width, vector< string > &board,
 		     int *abs_to_rel_table, int *rel_to_abs_table,
 		     int *goals_pos, Node *init_node ) {
