@@ -102,11 +102,11 @@ int precompute_board(int board_width, vector< string > &board,
     if (board_size%32 != 0) lists_size++;
 
     //re-allocate the boards
-    rel_to_abs_table = (int*) realloc(rel_to_abs_table, sizeof(int)*num_cell);
-    goals_pos = (int*) realloc(goals_pos, lists_size*sizeof(int));
-    init_node = (Node*) realloc(init_node, 2*lists_size*sizeof(int));
-    init_node->area = (int*) realloc(init_node->area, lists_size*sizeof(int));
-    init_node->box_pos = (int*) realloc(init_node->box_pos, lists_size*sizeof(int));
+    //rel_to_abs_table = (int*) realloc(rel_to_abs_table, sizeof(int)*num_cell);
+    //goals_pos = (int*) realloc(goals_pos, lists_size*sizeof(int));
+    //init_node = (Node*) realloc(init_node, 2*lists_size*sizeof(int));
+    //init_node->area = (int*) realloc(init_node->area, lists_size*sizeof(int));
+    //init_node->box_pos = (int*) realloc(init_node->box_pos, lists_size*sizeof(int));
     
 
     //display the board
