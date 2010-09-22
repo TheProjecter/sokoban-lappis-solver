@@ -19,16 +19,10 @@ int main(){
 
     int board_height = board.size();
 
-    cout << endl << "rel_to_abs : ";
-    for(int j=0; j<num_cells; j++){
-	int abs_value = rel_to_abs_table[j];
-	int y = abs_value/board_width;
-	int x = abs_value%board_width;
-	cout << "cell: " << j << " y: " << y << " x: " << x << endl;
-    }
     //Precompute the neighbors matrix
     
     int (*neighbors)[4], *num_neighbors;
+    neighbors = new int[num_cells][4];
     
     precompute_neighbors(
                         board_height, board_width, num_cells,
@@ -41,6 +35,9 @@ int main(){
 
     compute_area(   num_cells, neighbors,
                     num_neighbors, stack_arr, init_node );
+
+    init_node->print( board_height,board_width, num_cells,
+                      abs_to_rel_table);
 
     return 0;
 }
@@ -230,11 +227,10 @@ inline void add_to_list(int* liste, int index){
 void precompute_neighbors(
                     int board_height, int board_width, int num_cells,
                     int *abs_to_rel_table, int *rel_to_abs_table,
-                    int (*neighbors)[4], int *num_neighbors
+                    int (*neighbors)[4], int *&num_neighbors
                 ){
 
     //Create the arrays
-    neighbors = new int[num_cells][4];
 
     num_neighbors = new int[num_cells];
     memset(num_neighbors, 0, sizeof(int) * num_cells);
@@ -248,8 +244,6 @@ void precompute_neighbors(
         int y = abs_pos/board_width;
         int x = abs_pos%board_width;
 
-        cout << i << ": " << x << ", " << y << endl;  
-
         for(int j=0;j<4;j++){
             int ny = y + move[j][0];
             int nx = x + move[j][1];
@@ -257,21 +251,21 @@ void precompute_neighbors(
             if( 0<=ny && ny<board_height &&
                 0<=nx && nx<board_width &&
                 abs_to_rel_table[ny*board_width + nx] != -1
-                )
+                ){
                 neighbors[i][ num_neighbors[i]++ ] =
                     abs_to_rel_table[ny*board_width + nx];
+            }
         }
     }
 
-    cout << "neighbors" << endl;
-    for(int i=0;i<num_cells;i++){
-        cout << i << ": " ;
-        for(int j;j<num_neighbors[i];j++)
-            cout << neighbors[i][j] << " ";
-        cout << endl;
-    }
+    //cout << "neighbors" << endl;
+    //for(int i=0;i<num_cells;i++){
+    //    cout << i << ": " ;
+    //    for(int j=0;j<num_neighbors[i];j++)
+    //        cout << neighbors[i][j] << " ";
+    //    cout << endl;
+    //}
 
-    cout << "pepe" << endl;
 }
 
 void compute_area(  int num_cells, 
@@ -306,6 +300,7 @@ void compute_area(  int num_cells,
         //Take the top element and pop
         int current_cell = stack_arr[ --st_sz ];
 
+        //Check neighbors
         for(int i=0; i<num_neighbors[current_cell]; i++){
 
             int neig_cell = neighbors[current_cell][i];
@@ -315,10 +310,42 @@ void compute_area(  int num_cells,
 
             if( !( node->area[p1]&mask ) ){
                 node->area[p1] |= mask;
-                //push the element
-                stack_arr[st_sz++] = neig_cell;
+
+                //push the element if there's not a box
+                //on it
+                if( !( node->box_pos[p1]&mask ) )
+                    stack_arr[st_sz++] = neig_cell;
             }
         }
+    }
+}
+
+void Node :: print( int board_height, int board_width,
+                    int num_cells, int *abs_to_rel_table ){
+
+    //Iterate through the abs_to_rel_table
+    for(int i=0; i<board_height ; i++){
+        for(int j=0; j<board_width ; j++){
+
+            int rel_value = abs_to_rel_table[i*board_width + j];
+            
+            if( rel_value == -1 ){
+                cout << "#";
+            }
+            else {
+                int p1 = rel_value/32;
+                int p2 = rel_value%32;
+
+                bool box = this->box_pos[p1] & (1<<p2);
+                bool guy = this->area[p1] & (1<<p2);
+
+                if(box && guy)  cout << "x";
+                else if(guy)    cout << "*";
+                else if(box)    cout << "$";
+                else            cout << " ";
+            }
+        }
+        cout << endl;
     }
 }
 
