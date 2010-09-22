@@ -89,6 +89,10 @@ int precompute_board(int board_width, vector< string > &board,
 
     //fill in the board with UNKNOWN value
     memset(abs_to_rel_table, -1, board_size*sizeof(int));
+    memset(rel_to_abs_table, 0, board_size*sizeof(int));
+    memset(goals_pos, 0, lists_size*sizeof(int));
+    memset(init_node->area, 0, lists_size*sizeof(int));
+    memset(init_node->box_pos, 0, lists_size*sizeof(int));
 
     //use DFS to fill in the board
     dfs(board, abs_to_rel_table,
@@ -97,17 +101,6 @@ int precompute_board(int board_width, vector< string > &board,
 
     //add the guy position to his board
     add_to_list(init_node->area, abs_to_rel_table[guy_x+guy_y*board_width]);
-
-    lists_size = num_cell / 32;
-    if (board_size%32 != 0) lists_size++;
-
-    //re-allocate the boards
-    //rel_to_abs_table = (int*) realloc(rel_to_abs_table, sizeof(int)*num_cell);
-    //goals_pos = (int*) realloc(goals_pos, lists_size*sizeof(int));
-    //init_node = (Node*) realloc(init_node, 2*lists_size*sizeof(int));
-    //init_node->area = (int*) realloc(init_node->area, lists_size*sizeof(int));
-    //init_node->box_pos = (int*) realloc(init_node->box_pos, lists_size*sizeof(int));
-    
 
     //display the board
     cout << "ABSOLUTE BOARD :"<< endl;
@@ -134,6 +127,18 @@ int precompute_board(int board_width, vector< string > &board,
 	}
     }
 
+//other boards
+    cout << endl << "area (guy): ";
+    for(int j=0; j<lists_size; j++){
+	int i=0;
+	int mask = 1;
+	while(i<32){
+	    if (mask &(init_node->area[j])) cout << j*32 + i << " ";
+	    mask <<= 1;
+	    i++;
+	}
+    }
+
     cout << endl << "boxes : ";
     for(int j=0; j<lists_size; j++){
 	int i=0;
@@ -145,7 +150,8 @@ int precompute_board(int board_width, vector< string > &board,
 	}
     }
 
-    cout << endl << "Kevv part end here : num_cell: " << num_cell << endl;
+    cout << endl << "num_cell: " << num_cell << endl;
+    cout << "Kevv part end here" << endl << endl;
     return num_cell;
 }
 
@@ -168,12 +174,9 @@ void dfs(vector< string > &board, int *abs_to_rel_table,
 	add_to_list(goals_pos, c);
 	break;
     case BLOCKCHAR:
-	cout << "add block: " << c << endl;
 	add_to_list(box_pos, c);
 	break;
     }
-
-    //cout << x << " " << y <<endl;    
     
     //add values to translation tables
     abs_to_rel_table[x+y*board_width] = (c++);
