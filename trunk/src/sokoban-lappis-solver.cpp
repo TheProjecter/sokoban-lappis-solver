@@ -42,24 +42,156 @@ int read_board( vector< string > &board ){
     string aux;
     board.clear();
     int n = 0;
-
+    
     while( getline(cin, aux) ){
         board.push_back(aux);
         n = max( n, (int)aux.length() );
     }
-
+    
     return n;
 }
 
-int precompute_board(
-            int board_width, vector< string > &board,
-            int *abs_to_rel_table, int *rel_to_abs_table,
-            int *goals_pos, Node *init_node ) {
+int precompute_board(int board_width, vector< string > &board,
+		     int *abs_to_rel_table, int *rel_to_abs_table,
+		     int *goals_pos, Node *init_node ) {
 
-    return 0;
+    int board_size = board.size() * board_width;
+    int lists_size = board_size/32;
+    if (board_size%32 != 0) lists_size++;
+    int guy_x, guy_y, num_cell=0;
+    const int moves[4][2] = {{1, 0},{0, 1},{-1, 0},{0,-1}};
+    char c;
+
+    //allocate memory for boards
+    abs_to_rel_table = (int*) malloc(sizeof(int) * board_size);
+    rel_to_abs_table = (int*) malloc(sizeof(int)* board_size);
+    goals_pos = (int*) malloc(lists_size*sizeof(int));
+    init_node = (Node*) malloc(2*lists_size*sizeof(int));
+    init_node->area = (int*) malloc(lists_size*sizeof(int));
+    init_node->box_pos = (int*) malloc(lists_size*sizeof(int));
+    
+    //make the String board square
+    //and find the guy
+    for(int i=0;i<board.size();i++){
+	board[i].resize(board_width, '#');
+	//read a new line
+	cout << board[i] << endl;
+	//interprete every character of the line
+	for(int j=0; j<board_width; j++){
+	    c = board[i][j];
+	    if (c == GUYCHAR){
+		guy_x = j;
+		guy_y = i;
+	    }
+	}
+    }
+
+    //fill in the board with UNKNOWN value
+    memset(abs_to_rel_table, -1, board_size*sizeof(int));
+
+    //use DFS to fill in the board
+    dfs(board, abs_to_rel_table,
+	rel_to_abs_table, goals_pos, init_node->box_pos,
+	moves, board_width, guy_x, guy_y, num_cell);
+
+    //add the guy position to his board
+    add_to_list(init_node->area, abs_to_rel_table[guy_x+guy_y*board_width]);
+
+    lists_size = num_cell / 32;
+    if (board_size%32 != 0) lists_size++;
+
+    //re-allocate the boards
+    rel_to_abs_table = (int*) realloc(rel_to_abs_table, sizeof(int)*num_cell);
+    goals_pos = (int*) realloc(goals_pos, lists_size*sizeof(int));
+    init_node = (Node*) realloc(init_node, 2*lists_size*sizeof(int));
+    init_node->area = (int*) realloc(init_node->area, lists_size*sizeof(int));
+    init_node->box_pos = (int*) realloc(init_node->box_pos, lists_size*sizeof(int));
+    
+
+    //display the board
+    cout << "ABSOLUTE BOARD :"<< endl;
+    for(int i=0; i<board_width*board.size();i++){
+	if (i%board_width == 0) cout << endl;
+	switch (abs_to_rel_table[i]){
+	case WALL:
+	    cout<< " " << WALLCHAR;
+	    break;
+	default:
+	    cout<<" " << (abs_to_rel_table[i]);
+	}
+    }
+
+    //other boards
+    cout << endl << "goals: ";
+    for(int j=0; j<lists_size; j++){
+	int i=0;
+	int mask = 1;
+	while(i<32){
+	    if (mask & goals_pos[j]) cout << j*32 + i << " ";
+	    mask <<= 1;
+	    i++;
+	}
+    }
+
+    cout << endl << "boxes : ";
+    for(int j=0; j<lists_size; j++){
+	int i=0;
+	int mask = 1;
+	while(i<32){
+	    if (mask & (init_node->box_pos[j])) cout << j*32 + i << " ";
+	    mask <<= 1;
+	    i++;
+	}
+    }
+
+    cout << endl << "Kevv part end here : num_cell: " << num_cell << endl;
+    return num_cell;
 }
 
 //...........KEVIN FUNCTIONs............
+
+void dfs(vector< string > &board, int *abs_to_rel_table, 
+	 int *rel_to_abs_table, int *goals_pos, int *box_pos,
+	 const int moves[4][2], int board_width, int x, int y, int &c){   
+
+    int nx, ny;
+
+    //already visited cell
+    if (abs_to_rel_table[x+y*board_width] != -1)
+	return;
+
+    switch(board[y][x]){
+    case WALLCHAR:
+	return;
+    case GOALCHAR:
+	add_to_list(goals_pos, c);
+	break;
+    case BLOCKCHAR:
+	cout << "add block: " << c << endl;
+	add_to_list(box_pos, c);
+	break;
+    }
+
+    //cout << x << " " << y <<endl;    
+    
+    //add values to translation tables
+    abs_to_rel_table[x+y*board_width] = (c++);
+    rel_to_abs_table[c] = x+y*board_width;
+    for(int i=0; i<4;i++){
+	nx = x+moves[i][0];
+	ny = y+moves[i][1];
+	dfs(board, abs_to_rel_table,
+	    rel_to_abs_table, goals_pos, box_pos,
+	    moves, board_width, nx, ny, c);
+    }
+}
+
+inline void add_to_list(int* liste, int index){
+    int val;
+    int u = index / 32;
+    val = (liste[u] | (1<<(index - 32*u)));
+    liste[u] = val;
+}
 
 
 
