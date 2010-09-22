@@ -57,6 +57,53 @@ int precompute_board(
 
 //...........KEVIN FUNCTIONs............
 
+#define SPACECHAR ' '
+#define WALLCHAR '#'
+#define GOALCHAR '.'
+#define GUYCHAR '@'
+#define BLOCKCHAR '$'
+#define DUNNO -2
+#define WALL -1
+#define INSIDE 0
+#define BLOCK 1
+#define GOAL 2
+
+/* flood the board to find which cells are inside
+ * @param board             The board of the game (as a vector of
+ *                          string). OBS! board is not a squared 
+ *                          matrix!
+ *
+ * @param abs_to_rel_table  This pointer will hold the
+ *                          table that transforms 
+ *                          absolute positions to relative ones.
+ *
+ * @param rel_to_abs_table  This pointer will hold the
+ *                          table that transforms 
+ *                          relative positions to absolute ones.
+ *
+ * @param goals_pos         This pointer will hold the goal
+ *                          positions
+ *
+ * @param box_pos           This pointer will hold the boxes
+ *                          positions
+ *
+ * @param moves             Different moves the guy can do.
+ *
+ * @param board_width       Width of the board
+ *
+ * @param x                 (x, y) position of the guy
+ *
+ * @param y                 (x, y) position of the guy
+ *
+ * @param c                 index of the cell
+ *
+ */
+void dfs(vector< string > &board, int *abs_to_rel_table,
+	 int *rel_to_abs_table, int *goals_pos, int *box_pos,
+	 const int moves[4][2], int, int, int, int &c);
+
+void add_to_list(int* list, int index);
+    
 
 
 //...........END KEVIN FUNCTIONs............
