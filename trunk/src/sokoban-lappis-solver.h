@@ -10,6 +10,27 @@ class Node{
   public:
     int *area;
     int *box_pos;
+
+    /**
+     * Print the board using the next code:
+     * '#' = Unaccessible place
+     * '*' = Accessible place in the area
+     * ' ' = Accesible place
+     * '$' = Box
+     * 'x' = Box inside the area
+     *
+     * @param board_height      The height of the board.
+     *
+     * @param board_width       The width of the board.
+     *
+     * @param num_cells         The number of cells in the absolute
+     *                          representation of the board.
+     *
+     * @param abs_to_rel_table  Transformation table from absolute
+     *                          positions to relative ones.
+     */
+    void print( int board_height, int board_width,
+                int num_cells, int *abs_to_rel_table);
 };
 
 
@@ -139,7 +160,7 @@ void add_to_list(int* list, int index);
 void precompute_neighbors(
                     int board_height, int board_width, int num_cells,
                     int *abs_to_rel_table, int *rel_to_abs_table,
-                    int (*neighbors)[4], int *num_neighbors
+                    int (*neighbors)[4], int *&num_neighbors
                 );
 
 /**
