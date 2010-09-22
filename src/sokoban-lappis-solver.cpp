@@ -19,6 +19,13 @@ int main(){
 
     int board_height = board.size();
 
+    cout << endl << "rel_to_abs : ";
+    for(int j=0; j<num_cells; j++){
+	int abs_value = rel_to_abs_table[j];
+	int y = abs_value/board_width;
+	int x = abs_value%board_width;
+	cout << "cell: " << j << " y: " << y << " x: " << x << endl;
+    }
     //Precompute the neighbors matrix
     
     int (*neighbors)[4], *num_neighbors;
@@ -53,8 +60,8 @@ int read_board( vector< string > &board ){
 
 
 int precompute_board(int board_width, vector< string > &board,
-		     int *abs_to_rel_table, int *rel_to_abs_table,
-		     int *goals_pos, Node *init_node ) {
+		     int *&abs_to_rel_table, int *&rel_to_abs_table,
+		     int *&goals_pos, Node *&init_node ) {
 
     int board_size = board.size() * board_width;
     int lists_size = board_size/32;
@@ -67,7 +74,7 @@ int precompute_board(int board_width, vector< string > &board,
     abs_to_rel_table = (int*) malloc(sizeof(int) * board_size);
     rel_to_abs_table = (int*) malloc(sizeof(int)* board_size);
     goals_pos = (int*) malloc(lists_size*sizeof(int));
-    init_node = (Node*) malloc(2*lists_size*sizeof(int));
+    init_node = new Node();
     init_node->area = (int*) malloc(lists_size*sizeof(int));
     init_node->box_pos = (int*) malloc(lists_size*sizeof(int));
     
@@ -241,6 +248,8 @@ void precompute_neighbors(
         int y = abs_pos/board_width;
         int x = abs_pos%board_width;
 
+        cout << i << ": " << x << ", " << y << endl;  
+
         for(int j=0;j<4;j++){
             int ny = y + move[j][0];
             int nx = x + move[j][1];
@@ -253,6 +262,16 @@ void precompute_neighbors(
                     abs_to_rel_table[ny*board_width + nx];
         }
     }
+
+    cout << "neighbors" << endl;
+    for(int i=0;i<num_cells;i++){
+        cout << i << ": " ;
+        for(int j;j<num_neighbors[i];j++)
+            cout << neighbors[i][j] << " ";
+        cout << endl;
+    }
+
+    cout << "pepe" << endl;
 }
 
 void compute_area(  int num_cells, 
