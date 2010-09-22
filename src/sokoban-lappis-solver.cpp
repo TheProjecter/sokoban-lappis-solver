@@ -150,6 +150,14 @@ int precompute_board(int board_width, vector< string > &board,
 	}
     }
 
+    cout << endl << "rel_to_abs : ";
+    for(int j=0; j<num_cell; j++){
+	int abs_value = rel_to_abs_table[j];
+	int y = abs_value/board_width;
+	int x = abs_value%board_width;
+	cout << "cell: " << j << " y: " << y << " x: " << x << endl;
+    }
+
     cout << endl << "num_cell: " << num_cell << endl;
     cout << "Kevv part end here" << endl << endl;
     return num_cell;
@@ -186,8 +194,9 @@ void dfs(vector< string > &board, int *abs_to_rel_table,
     }
     
     //add values to translation tables
-    abs_to_rel_table[x+y*board_width] = (c++);
+    abs_to_rel_table[x+y*board_width] = c;
     rel_to_abs_table[c] = x+y*board_width;
+    c++;
     for(int i=0; i<4;i++){
 	nx = x+moves[i][0];
 	ny = y+moves[i][1];
