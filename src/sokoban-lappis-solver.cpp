@@ -71,7 +71,7 @@ int read_board( char* buffer, int buf_size, vector< string > &board ){
 
 int precompute_board(int board_width, vector< string > &board,
 		     int *&abs_to_rel_table, int *&rel_to_abs_table,
-		     int *&goals_pos, soko_node *&init_node ) {
+             int *&goals_pos, soko_node *&init_node ) {
 
     int board_size = board.size() * board_width;
     int lists_size = board_size/int_bits;
@@ -87,21 +87,19 @@ int precompute_board(int board_width, vector< string > &board,
     init_node = new soko_node();
     init_node->area = (int*) malloc(lists_size*sizeof(int));
     init_node->box_pos = (int*) malloc(lists_size*sizeof(int));
-    
+
     //make the String board square
     //and find the guy
     for(int i=0;i<board.size();i++){
-	board[i].resize(board_width, '#');
-	//read a new line
-	cout << board[i] << endl;
-	//interprete every character of the line
-	for(int j=0; j<board_width; j++){
-	    c = board[i][j];
-	    if ((c == GUYCHAR) || (c == GUYGOALCHAR)){
-		guy_x = j;
-		guy_y = i;
-	    }
-	}
+        board[i].resize(board_width, '#');
+        //interprete every character of the line
+        for(int j=0; j<board_width; j++){
+            c = board[i][j];
+            if ((c == GUYCHAR) || (c == GUYGOALCHAR)){
+                guy_x = j;
+                guy_y = i;
+            }
+        }
     }
 
     //fill in the board with UNKNOWN value
@@ -113,119 +111,123 @@ int precompute_board(int board_width, vector< string > &board,
 
     //use DFS to fill in the board
     dfs(board, abs_to_rel_table,
-	rel_to_abs_table, goals_pos, init_node->box_pos,
-	moves, board_width, guy_x, guy_y, num_cell);
+            rel_to_abs_table, goals_pos, init_node->box_pos,
+            moves, board_width, guy_x, guy_y, num_cell);
 
     //add the guy position to his board
     add_to_list(init_node->area, abs_to_rel_table[guy_x+guy_y*board_width]);
 
     //display the board
-    cout << "ABSOLUTE BOARD :"<< endl;
-    for(int i=0; i<board_width*board.size();i++){
-	if (i%board_width == 0) cout << endl;
-	switch (abs_to_rel_table[i]){
-	case -1:
-	    cout<< " " << WALLCHAR;
-	    break;
-	default:
-	    cout<<" " << (abs_to_rel_table[i]);
-	}
-    }
+    //cout << "ABSOLUTE BOARD :"<< endl;
+    //for(int i=0; i<board_width*board.size();i++){
+    //    if (i%board_width == 0) cout << endl;
+    //    switch (abs_to_rel_table[i]){
+    //        case -1:
+    //            cout<< " " << WALLCHAR;
+    //            break;
+    //        default:
+    //            cout<<" " << (abs_to_rel_table[i]);
+    //    }
+    //}
 
-    //other boards
-    cout << endl << "goals: ";
-    for(int j=0; j<lists_size; j++){
-	int i=0;
-	int mask = 1;
-	while(i<int_bits){
-	    if (mask & goals_pos[j]) cout << j*int_bits + i << " ";
-	    mask <<= 1;
-	    i++;
-	}
-    }
+    ////other boards
+    //cout << endl << "goals: ";
+    //for(int j=0; j<lists_size; j++){
+    //    int i=0;
+    //    int mask = 1;
+    //    while(i<int_bits){
+    //        if (mask & goals_pos[j]) cout << j*int_bits + i << " ";
+    //        mask <<= 1;
+    //        i++;
+    //    }
+    //}
 
-//other boards
-    cout << endl << "area (guy): ";
-    for(int j=0; j<lists_size; j++){
-	int i=0;
-	int mask = 1;
-	while(i<int_bits){
-	    if (mask &(init_node->area[j])) cout << j*int_bits + i << " ";
-	    mask <<= 1;
-	    i++;
-	}
-    }
+    ////other boards
+    //cout << endl << "area (guy): ";
+    //for(int j=0; j<lists_size; j++){
+    //    int i=0;
+    //    int mask = 1;
+    //    while(i<int_bits){
+    //        if (mask &(init_node->area[j])) cout << j*int_bits + i << " ";
+    //        mask <<= 1;
+    //        i++;
+    //    }
+    //}
 
-    cout << endl << "boxes : ";
-    for(int j=0; j<lists_size; j++){
-	int i=0;
-	int mask = 1;
-	while(i<int_bits){
-	    if (mask & (init_node->box_pos[j])) cout << j*int_bits + i << " ";
-	    mask <<= 1;
-	    i++;
-	}
-    }
+    //cout << endl << "boxes : ";
+    //for(int j=0; j<lists_size; j++){
+    //    int i=0;
+    //    int mask = 1;
+    //    while(i<int_bits){
+    //        if (mask & (init_node->box_pos[j])) cout << j*int_bits + i << " ";
+    //        mask <<= 1;
+    //        i++;
+    //    }
+    //}
 
-    cout << endl << "rel_to_abs : ";
-    for(int j=0; j<num_cell; j++){
-	int abs_value = rel_to_abs_table[j];
-	int y = abs_value/board_width;
-	int x = abs_value%board_width;
-	cout << "cell: " << j << " y: " << y << " x: " << x << endl;
-    }
+    //cout << endl << "rel_to_abs : ";
+    //for(int j=0; j<num_cell; j++){
+    //    int abs_value = rel_to_abs_table[j];
+    //    int y = abs_value/board_width;
+    //    int x = abs_value%board_width;
+    //    cout << "cell: " << j << " y: " << y << " x: " << x << endl;
+    //}
 
-    cout << endl << "num_cell: " << num_cell << endl;
-    cout << "Kevv part end here" << endl << endl;
+    //cout << endl << "num_cell: " << num_cell << endl;
+    //cout << "Kevv part end here" << endl << endl;
     return num_cell;
 }
 
 void dfs(vector< string > &board, int *abs_to_rel_table, 
 	 int *rel_to_abs_table, int *goals_pos, int *box_pos,
-	 const int moves[4][2], int board_width, int x, int y, int &c){   
+     const int moves[4][2], int board_width, int x, int y, int &c){   
 
     int nx, ny;
 
     //already visited cell
     if (abs_to_rel_table[x+y*board_width] != -1)
-	return;
+        return;
 
     switch(board[y][x]){
-    case WALLCHAR:
-	return;
-    case GUYGOALCHAR:
-	add_to_list(goals_pos, c);
-	break;
-    case GOALCHAR:
-	add_to_list(goals_pos, c);
-	break;
-    case BOXGOALCHAR:
-	add_to_list(goals_pos, c);
-	add_to_list(box_pos, c);
-	break;
-    case BOXCHAR:
-	add_to_list(box_pos, c);
-	break;
+        case WALLCHAR:
+            return;
+        case GUYGOALCHAR:
+            add_to_list(goals_pos, c);
+            break;
+        case GOALCHAR:
+            add_to_list(goals_pos, c);
+            break;
+        case BOXGOALCHAR:
+            add_to_list(goals_pos, c);
+            add_to_list(box_pos, c);
+            break;
+        case BOXCHAR:
+            add_to_list(box_pos, c);
+            break;
     }
-    
+
     //add values to translation tables
     abs_to_rel_table[x+y*board_width] = c;
     rel_to_abs_table[c] = x+y*board_width;
     c++;
     for(int i=0; i<4;i++){
-	nx = x+moves[i][0];
-	ny = y+moves[i][1];
-	dfs(board, abs_to_rel_table,
-	    rel_to_abs_table, goals_pos, box_pos,
-	    moves, board_width, nx, ny, c);
+        nx = x+moves[i][0];
+        ny = y+moves[i][1];
+        if(0<=nx && nx < board_width &&
+           0<=ny && ny < board.size() &&
+           board[ny][nx] != WALLCHAR)
+
+            dfs(board, abs_to_rel_table,
+                rel_to_abs_table, goals_pos, box_pos,
+                moves, board_width, nx, ny, c);
     }
 }
 
 inline void add_to_list(int* liste, int index){
     int val;
     int u = index / int_bits;
-    val = (liste[u] | (1<<(index - int_bits*u)));
-    liste[u] = val;
+    int w = index % int_bits;
+    liste[u] |= 1<<w;
 }
 
 void precompute_neighbors(
