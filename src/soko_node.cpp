@@ -43,11 +43,7 @@ void soko_node :: print( int board_height, int board_width,
 
 
 void soko_node :: compute_area(  int num_cells, 
-                    int (*neighbors)[4], int *num_neighbors,
-                    int *stack_arr ){
-
-    int arr_size = num_cells/int_bits;
-    if( num_cells%int_bits !=0 ) arr_size++;
+                    int (*neighbors)[4], int *num_neighbors){
 
     //find a valid position in the node to start with
     int p1 = 0;
@@ -67,12 +63,12 @@ void soko_node :: compute_area(  int num_cells,
     int st_sz = 0; //The stack's size
 
     //push the first element
-    stack_arr[st_sz++]= p1*int_bits + p2;
+    soko_node::stack_arr[st_sz++]= p1*int_bits + p2;
 
     while( st_sz != 0 ){
 
         //Take the top element and pop
-        int current_cell = stack_arr[ --st_sz ];
+        int current_cell = soko_node::stack_arr[ --st_sz ];
 
         //Check neighbors
         for(int i=0; i<num_neighbors[current_cell]; i++){
@@ -88,13 +84,27 @@ void soko_node :: compute_area(  int num_cells,
                 //push the element if there's not a box
                 //on it
                 if( !( this->box_pos[p1]&mask ) )
-                    stack_arr[st_sz++] = neig_cell;
+                    soko_node::stack_arr[st_sz++] = neig_cell;
             }
         }
     }
 }
 
-
-vector< soko_node > soko_node::get_sons(){
+vector< soko_node > soko_node::get_sons( int (*neighbors)[4],
+                                         int *num_neighbors){
     
+    //Check which are the reacheble boxes 
+    int p1 = 0;
+    int p2 = 0;
+    int mask = 1;
+
+    while( p1   ){
+        if( p2<int_bits && !( this->box_pos[p1] & mask ) ){
+            p2++;
+            mask<<=1;
+        }
+        if(p2<int_bits) break;
+        p1++;
+    }
+
 }

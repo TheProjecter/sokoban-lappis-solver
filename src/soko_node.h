@@ -22,7 +22,20 @@ class soko_node{
      * node
      */
     soko_node *father;
-    
+    /**
+     * The number of cells in the relative
+     * representation of the board
+     */
+    static int num_cells;
+    /**
+     * A stack used for flooding algorithm
+     */
+    static int *stack_arr;
+    /**
+     * The number of integers in each bitmap
+     */
+    static int arr_size;
+
     /**
      * Constructor of the class
      * @param father    A pointer to the father of the
@@ -62,7 +75,8 @@ class soko_node{
      *                          of every cell in the relative representation
      *
      * @param num_neighbors     An array with the number of neighboring
-     *                          cells of each cell in the relative representation
+     *                          cells of each cell in the relative
+     *                          representation
      *
      * @param stack_arr         An array of size "num_cells" to be used
      *                          as a stack.
@@ -70,10 +84,14 @@ class soko_node{
      * @param node              The node where to make the flood.
      */
     void compute_area(  int num_cells, int (*neighbors)[4],
-                        int *num_neighbors, int *stack_arr );
+                        int *num_neighbors );
     
+    /**
+     * Calculate the sons of a node and return them in a vector
+     */
+    vector< soko_node > get_sons(int (*neighbors)[4], int *num_neighbors);
 
-    vector< soko_node > get_sons();
 };
+
 
 #endif
