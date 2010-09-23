@@ -62,7 +62,7 @@ char* solve_sokoban(char *buffer, int buf_size){
     //Let the soko_node class have the array as a static variable
     soko_node :: stack_arr = stack_arr;
 
-    init_node->compute_area(   num_cells, neighbors,
+    init_node->compute_area(   neighbors,
                     num_neighbors );
 
     init_node->print( board_height,board_width, num_cells,
@@ -108,7 +108,6 @@ int precompute_board(int board_width, vector< string > &board,
     rel_to_abs_table = (int*) malloc(sizeof(int)* board_size);
     goals_pos = (int*) malloc(lists_size*sizeof(int));
     init_node = new soko_node();
-    init_node->area = (int*) malloc(lists_size*sizeof(int));
     init_node->box_pos = (int*) malloc(lists_size*sizeof(int));
 
     //make the String board square
@@ -129,16 +128,12 @@ int precompute_board(int board_width, vector< string > &board,
     memset(abs_to_rel_table, -1, board_size*sizeof(int));
     memset(rel_to_abs_table, 0, board_size*sizeof(int));
     memset(goals_pos, 0, lists_size*sizeof(int));
-    memset(init_node->area, 0, lists_size*sizeof(int));
     memset(init_node->box_pos, 0, lists_size*sizeof(int));
 
     //use DFS to fill in the board
     dfs(board, abs_to_rel_table,
             rel_to_abs_table, goals_pos, init_node->box_pos,
             moves, board_width, guy_x, guy_y, num_cell);
-
-    //add the guy position to his board
-    add_to_list(init_node->area, abs_to_rel_table[guy_x+guy_y*board_width]);
 
     //For the initial state, the relative cell number 0
     //is the first valid position (it's always where the player starts)
@@ -164,18 +159,6 @@ int precompute_board(int board_width, vector< string > &board,
     //    int mask = 1;
     //    while(i<int_bits){
     //        if (mask & goals_pos[j]) cout << j*int_bits + i << " ";
-    //        mask <<= 1;
-    //        i++;
-    //    }
-    //}
-
-    ////other boards
-    //cout << endl << "area (guy): ";
-    //for(int j=0; j<lists_size; j++){
-    //    int i=0;
-    //    int mask = 1;
-    //    while(i<int_bits){
-    //        if (mask &(init_node->area[j])) cout << j*int_bits + i << " ";
     //        mask <<= 1;
     //        i++;
     //    }

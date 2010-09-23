@@ -3,6 +3,7 @@
 
 #include<iostream>
 #include<vector>
+#include<string.h>
 
 using namespace std;
 
@@ -80,11 +81,11 @@ class soko_node{
                 int num_cells, int *abs_to_rel_table);
 
     /**
-     * Given a node, makes a flood algorithm that calculates
+     * Makes a flood algorithm that calculates
      * the active area that can be reached by the player.
-     *
-     * @param num_cells         The number of total reachable cells
-     *                          in the board.
+     * It makes the flood starting from the cell stored in
+     * the atribute last_pos of this node. It will also
+     * initialize the variable "area" of this node
      *
      * @param neighbors         A matrix with the neighboring cells
      *                          of every cell in the relative representation
@@ -92,14 +93,8 @@ class soko_node{
      * @param num_neighbors     An array with the number of neighboring
      *                          cells of each cell in the relative
      *                          representation
-     *
-     * @param stack_arr         An array of size "num_cells" to be used
-     *                          as a stack.
-     *
-     * @param node              The node where to make the flood.
      */
-    void compute_area(  int num_cells, int (*neighbors)[4],
-                        int *num_neighbors );
+    void compute_area(  int (*neighbors)[4], int *num_neighbors );
     
     /**
      * Calculate the sons of a node and return them in a vector
