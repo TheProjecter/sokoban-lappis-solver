@@ -161,5 +161,4 @@ void precompute_neighbors(
                 );
 
 
-
 #endif
