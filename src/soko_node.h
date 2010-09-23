@@ -23,6 +23,13 @@ class soko_node{
      */
     soko_node *father;
     /**
+     * This integer will hold the relative position
+     * of the box that it's father pushed. (not
+     * the new position of the box, but the one
+     * before pushing it)
+     */
+    int last_pos;
+    /**
      * The number of cells in the relative
      * representation of the board
      */
@@ -37,11 +44,19 @@ class soko_node{
     static int arr_size;
 
     /**
-     * Constructor of the class
+     * Constructors of the class
+     * 
+     * @param last_pos  Relative position of the box
+     *                  that the father of this node
+     *                  pushed.
+     *
      * @param father    A pointer to the father of the
      *                  node, NULL if is a root node
      */
-    soko_node(soko_node *father=NULL);
+    soko_node(int last_pos, soko_node *father);
+
+    //Empty constructor
+    soko_node(){ this->father=NULL; }
 
     /**
      * Print the board using the next code:

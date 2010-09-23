@@ -8,7 +8,8 @@
 extern int int_bits;
 
 
-soko_node :: soko_node(soko_node *father){
+soko_node :: soko_node(int last_pos, soko_node *father){
+    this->last_pos = last_pos;
     this->father = father;
 }
 
@@ -45,25 +46,13 @@ void soko_node :: print( int board_height, int board_width,
 void soko_node :: compute_area(  int num_cells, 
                     int (*neighbors)[4], int *num_neighbors){
 
-    //find a valid position in the node to start with
-    int p1 = 0;
-    int p2 = 0;
-    int mask = 1;
-    while(true){
-        while( p2<int_bits && !( this->area[p1] & mask ) ){
-            p2++;
-            mask<<=1;
-        }
-        if(p2<int_bits) break;
-        p1++;
-    }
+    //This integer will keep the stack's size
+    int st_sz = 0;
 
-    //code for a DFS using a stack...
-
-    int st_sz = 0; //The stack's size
-
-    //push the first element
-    soko_node::stack_arr[st_sz++]= p1*int_bits + p2;
+    //Push the first position: it will always be the cell
+    //that was occupied by the box that the father of this node
+    //pusshed to arrive to this configuration
+    soko_node::stack_arr[st_sz++] = this->last_pos;
 
     while( st_sz != 0 ){
 
@@ -74,9 +63,9 @@ void soko_node :: compute_area(  int num_cells,
         for(int i=0; i<num_neighbors[current_cell]; i++){
 
             int neig_cell = neighbors[current_cell][i];
-            p1 = neig_cell/int_bits;
-            p2 = neig_cell%int_bits;
-            mask = 1<<p2;
+            int p1 = neig_cell/int_bits;
+            int p2 = neig_cell%int_bits;
+            int mask = 1<<p2;
 
             if( !( this->area[p1]&mask ) ){
                 this->area[p1] |= mask;
@@ -98,7 +87,7 @@ vector< soko_node > soko_node::get_sons( int (*neighbors)[4],
     int p2 = 0;
     int mask = 1;
 
-    while( p1   ){
+    while( p1 ){
         if( p2<int_bits && !( this->box_pos[p1] & mask ) ){
             p2++;
             mask<<=1;
