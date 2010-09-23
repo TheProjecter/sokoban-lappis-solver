@@ -1,23 +1,29 @@
 #include"sokoban-lappis-solver.h"
 
 
+/**
+ * This variable will contain the number of
+ * bits that an integer have in the machine
+ * where this code is runned
+ */
 int int_bits = sizeof(int)*8;
 
-void solve_sokoban(char *buffer, int buf_size){
+
+char* solve_sokoban(char *buffer, int buf_size){
 
     cout << "begin" << endl;   
  
     vector< string > board;
 
     //Read and get the initial board
-
     int board_width = read_board(buffer,buf_size,board);
 
     for(int i=0;i<board.size();i++)
         cout << board[i] << endl;
 
+    //Precompute the board and initialize the
+    //tables
     int *abs_to_rel_table, *rel_to_abs_table, *goals_pos;
-
     soko_node *init_node;
 
     int num_cells = precompute_board(
@@ -25,10 +31,11 @@ void solve_sokoban(char *buffer, int buf_size){
                         rel_to_abs_table, goals_pos,
                         init_node);
 
+    //Get the height of the board
     int board_height = board.size();
 
-    //Precompute the neighbors matrix
-    
+
+    //Precompute the neighbors matrix 
     int (*neighbors)[4], *num_neighbors;
     neighbors = new int[num_cells][4];
     
@@ -38,15 +45,17 @@ void solve_sokoban(char *buffer, int buf_size){
                         neighbors, num_neighbors
                     );
 
-    //Make the auxiliary stack
+    //Make the auxiliary stack and compute the initial area
     int *stack_arr = new int[num_cells];
 
-    compute_area(   num_cells, neighbors,
-                    num_neighbors, stack_arr, init_node );
+    init_node->compute_area(   num_cells, neighbors,
+                    num_neighbors, stack_arr );
 
     init_node->print( board_height,board_width, num_cells,
                       abs_to_rel_table);
 
+    char* sol = NULL;
+    return sol;
 }
 
 int read_board( char* buffer, int buf_size, vector< string > &board ){
@@ -272,58 +281,6 @@ void precompute_neighbors(
     //    cout << endl;
     //}
 
-}
-
-void compute_area(  int num_cells, 
-                    int (*neighbors)[4], int *num_neighbors,
-                    int *stack_arr, soko_node *node ){
-
-    int arr_size = num_cells/int_bits;
-    if( num_cells%int_bits !=0 ) arr_size++;
-
-    //find a valid position in the node to start with
-    int p1 = 0;
-    int p2 = 0;
-    int mask = 1;
-    while(true){
-        while( p2<int_bits && !( node->area[p1] & mask ) ){
-            p2++;
-            mask<<=1;
-        }
-        if(p2<int_bits) break;
-        p1++;
-    }
-
-    //code for a DFS using a stack...
-
-    int st_sz = 0; //The stack's size
-
-    //push the first element
-    stack_arr[st_sz++]= p1*int_bits + p2;
-
-    while( st_sz != 0 ){
-
-        //Take the top element and pop
-        int current_cell = stack_arr[ --st_sz ];
-
-        //Check neighbors
-        for(int i=0; i<num_neighbors[current_cell]; i++){
-
-            int neig_cell = neighbors[current_cell][i];
-            p1 = neig_cell/int_bits;
-            p2 = neig_cell%int_bits;
-            mask = 1<<p2;
-
-            if( !( node->area[p1]&mask ) ){
-                node->area[p1] |= mask;
-
-                //push the element if there's not a box
-                //on it
-                if( !( node->box_pos[p1]&mask ) )
-                    stack_arr[st_sz++] = neig_cell;
-            }
-        }
-    }
 }
 
 
