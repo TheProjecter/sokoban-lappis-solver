@@ -71,14 +71,11 @@ class soko_node{
      *
      * @param board_width       The width of the board.
      *
-     * @param num_cells         The number of cells in the absolute
-     *                          representation of the board.
-     *
      * @param abs_to_rel_table  Transformation table from absolute
      *                          positions to relative ones.
      */
     void print( int board_height, int board_width,
-                int num_cells, int *abs_to_rel_table);
+                int *abs_to_rel_table);
 
     /**
      * Makes a flood algorithm that calculates
@@ -98,10 +95,54 @@ class soko_node{
     
     /**
      * Calculate the sons of a node and return them in a vector
+     *
+     * @param board_width       The width of the board.
+     *
+     * @param abs_to_rel_table  Transformation table from absolute
+     *                          positions to relative ones.
+     *
+     * @param rel_to_abs_table  Transformation table from relative
+     *                          positions to absolute ones.
+     *
+     * @param neighbors         A matrix with the neighboring cells
+     *                          of every cell in the relative representation
+     *
+     * @param num_neighbors     An array with the number of neighboring
+     *                          cells of each cell in the relative
+     *                          representation
+     *
+     * @return                  The sons of the node
      */
-    vector< soko_node > get_sons(int (*neighbors)[4], int *num_neighbors);
+    vector< soko_node* > *get_sons(int board_width, int* abs_to_rel_table,
+                                int *rel_to_abs_table,
+                                int (*neighbors)[4], int *num_neighbors);
+
+  private:
+    /**
+     * Given a box and a neighbor of the box (both in
+     * relative positions) calculates the oposite neighbor
+     * of the box.
+     *
+     * @param board_width       The width of the board.
+     *
+     * @param abs_to_rel_table  Transformation table from absolute
+     *                          positions to relative ones.
+     *
+     * @param rel_to_abs_table  Transformation table from relative
+     *                          positions to absolute ones.
+     *
+     * @param box               The relative position of the board
+     *
+     * @param neigh             The relative position of a neighbor
+     *
+     * @return                  The relative position of the oposite neighbor
+     *                          of the box
+     */
+    inline static int find_oposite(int board_width, int* abs_to_rel_table,
+                     int *rel_to_abs_table, int box, int neigh);
 
 };
+
 
 
 #endif
