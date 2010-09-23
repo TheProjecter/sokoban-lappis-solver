@@ -43,8 +43,10 @@ void soko_node :: print( int board_height, int board_width,
 }
 
 
-void soko_node :: compute_area(  int num_cells, 
-                    int (*neighbors)[4], int *num_neighbors){
+void soko_node :: compute_area( int (*neighbors)[4], int *num_neighbors){
+    //Create an array for calculating the area
+    this->area = new int[soko_node::arr_size];
+    memset( this->area, 0, sizeof(int)*soko_node::arr_size );
 
     //This integer will keep the stack's size
     int st_sz = 0;
@@ -54,6 +56,14 @@ void soko_node :: compute_area(  int num_cells,
     //pusshed to arrive to this configuration
     soko_node::stack_arr[st_sz++] = this->last_pos;
 
+    //Mark this position on the area
+
+    int p1 = this->last_pos/int_bits;
+    int p2 = this->last_pos%int_bits;
+    int mask = 1<<p2;
+    this->area[p1] |= mask;
+
+    //Start the loop
     while( st_sz != 0 ){
 
         //Take the top element and pop
@@ -63,9 +73,9 @@ void soko_node :: compute_area(  int num_cells,
         for(int i=0; i<num_neighbors[current_cell]; i++){
 
             int neig_cell = neighbors[current_cell][i];
-            int p1 = neig_cell/int_bits;
-            int p2 = neig_cell%int_bits;
-            int mask = 1<<p2;
+            p1 = neig_cell/int_bits;
+            p2 = neig_cell%int_bits;
+            mask = 1<<p2;
 
             if( !( this->area[p1]&mask ) ){
                 this->area[p1] |= mask;
