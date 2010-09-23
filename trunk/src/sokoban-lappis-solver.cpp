@@ -140,6 +140,10 @@ int precompute_board(int board_width, vector< string > &board,
     //add the guy position to his board
     add_to_list(init_node->area, abs_to_rel_table[guy_x+guy_y*board_width]);
 
+    //For the initial state, the relative cell number 0
+    //is the first valid position (it's always where the player starts)
+    init_node->last_pos = 0;
+
     //display the board
     //cout << "ABSOLUTE BOARD :"<< endl;
     //for(int i=0; i<board_width*board.size();i++){
