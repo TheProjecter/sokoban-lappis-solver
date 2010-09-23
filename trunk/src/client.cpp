@@ -20,7 +20,7 @@ void error(const char *msg)
 
 //In case there's no internet connection
 //just read a random file
-void read_a_file(){
+void read_a_file(char **sol){
     FILE *file;
     char buffer[BUFFERSIZE];
     int n;
@@ -32,14 +32,16 @@ void read_a_file(){
     else
         error("ERROR opening file");
 
-    solve_sokoban(buffer, n);
+    *sol = solve_sokoban(buffer, n);
 
 }
 
 int main(int argc, char *argv[])
 {
     if(true){
-        read_a_file();
+        char* sol;
+        read_a_file(&sol);
+        //cout << "Solution found: " << sol << endl;
         return 0;
     }
 

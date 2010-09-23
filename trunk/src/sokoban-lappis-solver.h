@@ -19,16 +19,36 @@
 
 using namespace std;
 
+/**
+ * Solve the sokoban board and return a string
+ * containing the needed movements to reach for
+ * a solution (Encoded as U D L R)
+ *
+ * @param buffer    A string containing the board
+ *
+ * @param buf_size  The size of the buffer
+ *
+ * @return          A string containing a solution
+ *                  to the board
+ */
+char* solve_sokoban(char *buffer, int buf_size);
 
 /**
- * This variable will contain the number of
- * bits that an integer have in the machine
- * where this code is runned
+ * Transforms a board from a c-string structure to
+ * a vector<string> more familiar one.
+ * OBS! The resulting board is not squared!
+ *
+ * @param buffer    The c-string
+ *
+ * @param buf_size  The size of the string
+ *
+ * @param board     A reference to a vector of
+ *                  string where the solution will rest
+ *
+ * @return          The width of the board
  */
-
-void solve_sokoban(char *buffer, int buf_size);
-
-int read_board(char*,int, vector< string > &board );
+int read_board(char *buffer, int buf_size,
+                vector< string > &board );
 
 /**
  * Make all the necessary precomputations to begin the
@@ -104,7 +124,7 @@ void dfs(vector< string > &board, int *abs_to_rel_table,
 	 int *rel_to_abs_table, int *goals_pos, int *box_pos,
 	 const int moves[4][2], int, int, int, int &c);
 
-void add_to_list(int* list, int index);
+inline void add_to_list(int* list, int index);
     
 /**
  * This function precomputes the neighbors of
@@ -140,26 +160,6 @@ void precompute_neighbors(
                     int (*neighbors)[4], int *&num_neighbors
                 );
 
-/**
- * Given a node, makes a flood algorithm that calculates
- * the active area that can be reached by the player.
- *
- * @param num_cells         The number of total reachable cells
- *                          in the board.
- *
- * @param neighbors         A matrix with the neighboring cells
- *                          of every cell in the relative representation
- *
- * @param num_neighbors     An array with the number of neighboring
- *                          cells of each cell in the relative representation
- *
- * @param stack_arr         An array of size "num_cells" to be used
- *                          as a stack.
- *
- * @param node              The node where to make the flood.
- */
-void compute_area(  int num_cells, int (*neighbors)[4],
-                    int *num_neighbors, int *stack_arr, soko_node *node );
 
 
 #endif
