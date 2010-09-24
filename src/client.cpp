@@ -15,46 +15,38 @@ void function2 (char buffer[], int size, char **sol){
 void error(const char *msg)
 {
     perror(msg);
-    exit(0);
+    exit(1);
 }
 
 //In case there's no internet connection
 //just read a random file
-void read_a_file(char **sol){
+void read_from_file(char *filename,char **sol){
     FILE *file;
     char buffer[BUFFERSIZE];
+    char filepath[]="../test-cases/";
     int n;
 
-    file = fopen("../test-cases/1.skb", "r");
-
-    if(file)
+    file = fopen( strcat(filepath,filename) , "r");
+    if(file!=NULL){
         n = fread(buffer, 1, BUFFERSIZE, file);
-    else
-        error("ERROR opening file");
+        fclose(file);
 
-    *sol = solve_sokoban(buffer, n);
-
+        printf("BOARD:\n%s\n",buffer);
+        *sol = solve_sokoban(buffer, n);
+    }
+    else{
+        fprintf(stderr,"ERROR opening file '%s'",filename);
+        exit(1);
+    }
 }
 
-int main(int argc, char *argv[])
-{
-    if(true){
-        char* sol;
-        read_a_file(&sol);
-        //cout << "Solution found: " << sol << endl;
-        return 0;
-    }
-
-	const char *ADDRESS ="cvap103.nada.kth.se";
+void read_from_server(char *board,char **sol){
+    const char *ADDRESS ="cvap103.nada.kth.se";
     int sockfd, n;
     struct sockaddr_in serv_addr;
     struct hostent *server;
 
     char buffer[BUFFERSIZE];
-    if (argc < 2) {
-       fprintf(stderr,"usage %s boardnum\n", argv[0]);
-       exit(0);
-    }
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) 
         error("ERROR opening socket");
@@ -71,22 +63,18 @@ int main(int argc, char *argv[])
     serv_addr.sin_port = htons(PORT);
     if (connect(sockfd,(const struct sockaddr*)&serv_addr,sizeof(serv_addr)) < 0) 
         error("ERROR connecting");
-    n = write(sockfd,argv[1],strlen(argv[1]));
+    n = write(sockfd,board,strlen(board));
     if (n < 0) 
          error("ERROR writing to socket");
     bzero(buffer,BUFFERSIZE);
     n = read(sockfd,buffer,BUFFERSIZE-1);
     if (n < 0) 
          error("ERROR reading from socket");
-	printf("%s\n",buffer);
-	
-	// Now we compute the solution
-	
-	char *MYSOL;
-	
-	function2(buffer,n,&MYSOL);
-	
-    n = write(sockfd,MYSOL,strlen(MYSOL));
+    
+    printf("BOARD:\n%s\n",buffer);
+    *sol = solve_sokoban(buffer, n);
+
+    n = write(sockfd,*sol,strlen(*sol));
     if (n < 0) 
          error("ERROR writing to socket");
 
@@ -94,8 +82,28 @@ int main(int argc, char *argv[])
 
     n = read(sockfd,buffer,BUFFERSIZE-1);
     if (n < 0) 
-         error("ERROR reading from socket");
+        error("ERROR reading from socket");
 
-	printf("%s\n",buffer);
-    return 0;
+    printf("%s\n",buffer);
+}
+
+int main(int argc, char *argv[])
+{
+    // parameter check
+    if( (argc!=2 && argc!=3) || (argc==3 && strcmp(argv[1],"-f")!=0) ){
+        fprintf(stderr,"usage %s [-f] boardnum\n",argv[0]);
+        exit(1);
+    }
+
+    char *sol;
+    if( argc==2 ){ /* 1 parameter means that board should be read from server */
+        read_from_server(argv[1],&sol);
+    }
+    else{ /* otherwise board should be read from file */
+        read_from_file(argv[2],&sol);
+    }
+
+    printf("SOLUTION:\n%s\n",sol);
+
+    exit(0);
 }
