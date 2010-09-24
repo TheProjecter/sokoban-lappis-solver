@@ -197,6 +197,6 @@ bool soko_node::is_solution(int *goals_pos){
     for(int p1 = 0; p1 < soko_node::arr_size; p1++){
         if( this->box_pos[p1] != ( this->box_pos[p1] & goals_pos[p1] ) )
             return false;
-        }
+    }
     return true;
 }
