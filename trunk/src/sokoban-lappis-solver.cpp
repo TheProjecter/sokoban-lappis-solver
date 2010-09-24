@@ -67,6 +67,9 @@ char* solve_sokoban(char *buffer, int buf_size){
     for(int i=0; i<v->size() ;i++)
         (*v)[i]->print(board_height,board_width, abs_to_rel_table);
 
+    soko_node* sol_node = breadth_first_search(init_node,board_width,
+                                                abs_to_rel_table,rel_to_abs_table,
+                                                neighbors,num_neighbors);
     char* sol = NULL;
     return sol;
 }
@@ -283,4 +286,26 @@ void precompute_neighbors(
 
 }
 
+soko_node* breadth_first_search(soko_node *init_node, int board_width,
+                                int* abs_to_rel_table, int *rel_to_abs_table,
+                                int (*neighbors)[4], int *num_neighbors) {
+    soko_node* curr_node;
+    vector< soko_node* > *sons;
+    queue< soko_node* > fifo;
+    fifo.push(init_node);
 
+    return NULL;
+
+    while(!fifo.empty()){
+        curr_node=fifo.front();
+        fifo.pop();
+        
+        sons=curr_node->get_sons(board_width, abs_to_rel_table, rel_to_abs_table, neighbors, num_neighbors);
+
+        for( vector< soko_node* >::iterator iter = sons->begin(); iter != sons->end(); ++iter ) {
+            // check if iter is terminal state
+            //fifo.push(*iter);
+        }
+    }
+    return NULL;
+}

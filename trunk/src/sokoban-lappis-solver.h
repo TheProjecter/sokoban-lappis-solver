@@ -4,6 +4,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<vector>
+#include <queue>
 #include<string>
 #include<string.h>
 #include<iostream>
@@ -160,5 +161,31 @@ void precompute_neighbors(
                     int (*neighbors)[4], int *&num_neighbors
                 );
 
+/**
+ * Takes initial soko_node and does a breadth-first search
+ * until it finds a solution.
+ *
+ * @param init_node         Starting node of the Sokoban problem
+ *
+ * @param board_width       The width of the board.
+ *
+ * @param abs_to_rel_table  Transformation table from absolute
+ *                          positions to relative ones.
+ *
+ * @param rel_to_abs_table  Transformation table from relative
+ *                          positions to absolute ones.
+ *
+ * @param neighbors         A matrix with the neighboring cells
+ *                          of every cell in the relative representation
+ *
+ * @param num_neighbors     An array with the number of neighboring
+ *                          cells of each cell in the relative
+ *                          representation
+ *
+ * @return                  A soko_node in which all boxes are in the goals
+ */
+soko_node* breadth_first_search(soko_node *init_node, int board_width,
+                                int* abs_to_rel_table, int *rel_to_abs_table,
+                                int (*neighbors)[4], int *num_neighbors);
 
 #endif
