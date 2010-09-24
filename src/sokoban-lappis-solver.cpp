@@ -145,7 +145,7 @@ int precompute_board(int board_width, vector< string > &board,
     //and dir_push is '\0' character
     //is the first valid position (it's always where the player starts)
     init_node->last_pos = 0;
-    init_node->dir_push = '\0';
+    init_node->push_dir = '\0';
     //display the board
     //cout << "ABSOLUTE BOARD :"<< endl;
     //for(int i=0; i<board_width*board.size();i++){
@@ -318,7 +318,7 @@ soko_node* breadth_first_search(soko_node *init_node, int board_width,
 
 char* search_path(soko_node *curr_node) {
     char *path;
-    if(node->father==NULL) {
+    if(curr_node->father==NULL) {
         path=(char*)malloc(2048*sizeof(char));
         path[0]='\0';
         return path;
