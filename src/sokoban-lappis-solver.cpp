@@ -316,20 +316,120 @@ soko_node* breadth_first_search(soko_node *init_node, int board_width,
     return NULL;
 }
 
-char* search_path(soko_node *curr_node) {
+char* search_path(soko_node *curr_node, int board_size, int board_width,
+                            int *abs_to_rel_table, int *rel_to_abs_table) {
     char *path;
     if(curr_node->father==NULL) {
         path=(char*)malloc(2048*sizeof(char));
         path[0]='\0';
         return path;
     }
-    path=search_path(curr_node->father);
+    path=search_path(curr_node->father,board_size,board_width,
+                                abs_to_rel_table,rel_to_abs_table);
+
+    //calculates origin and destination positions
+    int from=curr_node->father->last_pos;
+    int abs_neigh_to=rel_to_abs_table[curr_node->last_pos];
+    int ant_y=abs_neigh_to/board_width;
+    int ant_x=abs_neigh_to%board_width;
+    switch(curr_node->push_dir){
+        case 'U':
+            ant_x++;
+            break;
+        case 'D':
+            ant_x--;
+            break;
+        case 'L':
+            ant_y++;
+            break;
+        case 'R':
+            ant_y--;
+            break;
+    }
+    int to=abs_to_rel_table[ant_y*board_width + ant_x];
     
-    //MAGIC
+    int from_1=from/int_bits;
+    int from_2=from%int_bits;
+    int to_1=to/int_bits;
+    int to_2=to%int_bits;
+
+    int lists_size = board_size/int_bits;
+    if (board_size%int_bits != 0) lists_size++;
+
+    //bitmaps used to create the shortest path
+    int *visited = (int*) malloc(lists_size*sizeof(int));
+    int *move_u = (int*) malloc(lists_size*sizeof(int));
+    int *move_d = (int*) malloc(lists_size*sizeof(int));
+    int *move_l = (int*) malloc(lists_size*sizeof(int));
+    int *move_r = (int*) malloc(lists_size*sizeof(int));
+
+    memset(visited, 0, lists_size*sizeof(int));
+    memset(move_u, 0, lists_size*sizeof(int));
+    memset(move_d, 0, lists_size*sizeof(int));
+    memset(move_l, 0, lists_size*sizeof(int));
+    memset(move_r, 0, lists_size*sizeof(int));
+    visited[to_1] |= 1<<to_2;    
+
+    while( ( visited[ from_1 ] & 1<<from_2 ) == 0 ){
+        for(int p1 = 0; p1 < soko_node::arr_size; p1++){
+            for(int p2 = 0; p2 < int_bits; p2++ ){
+                if( visited[p1] & 1<<p2 ) {
+                    //check for all neighbors which are in the area but not in visited.
+                    // for each of these set a 1 on the right bit of the u l r d bitmaps.
+                    
+                    
+                }
+            }
+        // update visited as bitwise-or of move_u-d-l-r
+        // also, setting of to bit to 1
+        for(int p1=0;p1<soko_node::arr_size;p1++)
+            visited[p1]=move_u[p1]|move_d[p1]|move_l[p1]|move_r[p1];
+        visited[to_1] |= 1<<to_2;
+        }
+    }
     
+    // path found, decode string
     int l=strlen(path);
-    path[l++]=' ';
+    int pos_1=from_1;
+    int pos_2=from_2;
+    
+    while(pos_1 != to_1 || pos_2!=to_2) {
+        int rel_pos=pos_1*int_bits+pos_2;
+        int abs_pos=rel_to_abs_table[rel_pos];
+        int apos_y=abs_pos/board_width;
+        int apos_x=abs_pos%board_width;
+        
+        if(move_u[pos_1] & 1<<pos_2) {
+            path[l++]='U';
+            apos_x--;
+        }
+        else if(move_d[pos_1] & 1<<pos_2) {
+            path[l++]='D';
+            apos_x++;
+        }
+        else if(move_l[pos_1] & 1<<pos_2) {
+            path[l++]='L';
+            apos_y--;
+        }
+        else{
+            path[l++]='R';
+            apos_y++;
+        }
+        path[l++]=' ';
+        abs_pos=apos_y*board_width+apos_x;
+        rel_pos=abs_to_rel_table[abs_pos];
+        pos_1=rel_pos/int_bits;
+        pos_2=rel_pos%int_bits;
+    }
     path[l++]=curr_node->push_dir;
+    path[l++]=' ';
     path[l++]='\0';
+
+    free(visited);
+    free(move_u);
+    free(move_d);
+    free(move_l);
+    free(move_r);
+
     return path;
 }
