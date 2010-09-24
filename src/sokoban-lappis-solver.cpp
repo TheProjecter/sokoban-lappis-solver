@@ -71,6 +71,7 @@ char* solve_sokoban(char *buffer, int buf_size){
                                                 abs_to_rel_table,rel_to_abs_table,
                                                 neighbors,num_neighbors);
     char* sol = NULL;
+
     return sol;
 }
 
