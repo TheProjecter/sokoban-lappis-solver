@@ -17,9 +17,6 @@
 #define PORT 5555
 #define BUFFERSIZE 1024
 
-
-
 using namespace std;
-
 
 #endif

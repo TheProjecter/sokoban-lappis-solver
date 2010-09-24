@@ -198,9 +198,21 @@ soko_node* breadth_first_search(soko_node *init_node, int board_width,
  *
  * @param curr_node         Node that we must reach with the output string.
  *
+ * @param board_size        The size of the board, basically received
+ *                          as board.size() * board_width
+ * 
+ * @param board_width       The width of the board.
+ *
+ * @param abs_to_rel_table  Transformation table from absolute
+ *                          positions to relative ones.
+ *
+ * @param rel_to_abs_table  Transformation table from relative
+ *                          positions to absolute ones.
+ * 
  * @return                  A C-string with the moves
  *                          coded as 'U' 'D' 'L' and 'R'
  */
-char* search_path(soko_node *curr_node);
+char* search_path(soko_node *curr_node, int board_size, int board_width,
+                            int *abs_to_rel_table, int *rel_to_abs_table);
 
 #endif
