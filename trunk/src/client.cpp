@@ -8,7 +8,6 @@ void function2 (char buffer[], int size, char **sol){
 	//sleep(50);
 	
 	char solution[] = "U R R D U U L D L L U L L D R R R R L D D R U R U D L L U R";
-	
 	*sol = solution;	
 }
 

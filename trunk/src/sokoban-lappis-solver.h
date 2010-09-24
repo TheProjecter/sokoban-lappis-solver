@@ -188,4 +188,5 @@ soko_node* breadth_first_search(soko_node *init_node, int board_width,
                                 int* abs_to_rel_table, int *rel_to_abs_table,
                                 int (*neighbors)[4], int *num_neighbors);
 
+
 #endif
