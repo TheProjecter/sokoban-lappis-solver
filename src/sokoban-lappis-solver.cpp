@@ -62,26 +62,17 @@ char* solve_sokoban(char *buffer, int buf_size){
                                         abs_to_rel_table, rel_to_abs_table,
                                         neighbors, num_neighbors);
 
-    //printf("OK BEFORE (size: %d)\n",(int)v->size());
-
-    //for(int i=0; i< v->size() ;i++) {
-	//printf("OK Start number %d\n",i);
-    //    (*v)[i]->print(board_height,board_width, abs_to_rel_table);
-	//printf("OK End number %d\n",i);
-    //}
-
-    //printf("OK AFTER");
-
     soko_node* sol_node = breadth_first_search(init_node,board_width,
-                                                abs_to_rel_table,rel_to_abs_table,
-                                                neighbors,num_neighbors,goals_pos);
+                                                abs_to_rel_table,
+                                                rel_to_abs_table,neighbors,
+                                                num_neighbors,goals_pos);
 
     while(sol_node!=NULL){
         sol_node->print(board_height,board_width, abs_to_rel_table);
         sol_node = sol_node->father;
     }
-	//printf("OK LAST");    
-	char *solo = new char[6];
+    
+    char *solo = new char[6];
     solo[0]='U';
     solo[1]='\0';
     return solo;
@@ -151,9 +142,10 @@ int precompute_board(int board_width, vector< string > &board,
             moves, board_width, guy_x, guy_y, num_cell);
 
     //For the initial state, the relative cell number 0
+    //and dir_push is '\0' character
     //is the first valid position (it's always where the player starts)
     init_node->last_pos = 0;
-
+    init_node->dir_push = '\0';
     //display the board
     //cout << "ABSOLUTE BOARD :"<< endl;
     //for(int i=0; i<board_width*board.size();i++){
@@ -301,7 +293,8 @@ void precompute_neighbors(
 
 soko_node* breadth_first_search(soko_node *init_node, int board_width,
                                 int* abs_to_rel_table, int *rel_to_abs_table,
-                                int (*neighbors)[4], int *num_neighbors, int *goals_pos) {
+                                int (*neighbors)[4], int *num_neighbors,
+                                int *goals_pos) {
     soko_node* curr_node;
     vector< soko_node* > *sons;
     queue< soko_node* > fifo;
@@ -311,22 +304,32 @@ soko_node* breadth_first_search(soko_node *init_node, int board_width,
         curr_node=fifo.front();
         fifo.pop();
         
-        sons=curr_node->get_sons(board_width, abs_to_rel_table, rel_to_abs_table, neighbors, num_neighbors);
+        sons=curr_node->get_sons(board_width, abs_to_rel_table,
+                                  rel_to_abs_table, neighbors, num_neighbors);
 
         for( int i=0; i<sons->size(); i++) {
             if( (*sons)[i]->is_solution(goals_pos) )
                 return (*sons)[i];
             fifo.push((*sons)[i]);
         }
-
-        delete sons;
-/*
-        for( vector< soko_node* >::iterator iter = sons->begin(); iter != sons->end(); ++iter ) {
-            if((*iter)->is_solution(goals_pos))
-                return *iter;
-            fifo.push(*iter);
-        }
-*/
     }
     return NULL;
+}
+
+char* search_path(soko_node *curr_node) {
+    char *path;
+    if(node->father==NULL) {
+        path=(char*)malloc(2048*sizeof(char));
+        path[0]='\0';
+        return path;
+    }
+    path=search_path(curr_node->father);
+    
+    //MAGIC
+    
+    int l=strlen(path);
+    path[l++]=' ';
+    path[l++]=curr_node->push_dir;
+    path[l++]='\0';
+    return path;
 }

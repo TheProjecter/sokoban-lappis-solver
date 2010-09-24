@@ -12,8 +12,9 @@ int *soko_node::stack_arr;
 int soko_node::num_cells;
 int soko_node::arr_size;
 
-soko_node :: soko_node(int last_pos, soko_node *father){
+soko_node :: soko_node(int last_pos, char push_dir, soko_node *father){
     this->last_pos = last_pos;
+    this->push_dir = push_dir;
     this->father = father;
 }
 
@@ -144,9 +145,27 @@ vector< soko_node* > *soko_node::get_sons(
                 if( this->box_pos[o1] & (1<<o2) )
                     continue;
 
+                // calculating push_dir for the son
+                int abs_box = rel_to_abs_table[box_cell]; 
+                int abs_neigh = rel_to_abs_table[neigh_cell];
+
+                int b_y = abs_box/board_width;
+                int b_x = abs_box%board_width;
+                int n_y = abs_neigh/board_width;
+                int n_x = abs_neigh%board_width;
+
+                char push_dir;
+                if( b_y - n_y == 1 )
+                    push_dir='R';
+                else if( b_y - n_y == -1 )
+                    push_dir='L';
+                else if( b_x - n_x == 1 )
+                    push_dir='D';
+                else if( b_x - n_x == -1 )
+                    push_dir='U';
+                
                 //Make your new son!
-                soko_node *son = new soko_node(box_cell,this);                     
-               
+                soko_node *son = new soko_node(box_cell,push_dir,this);
 
                 //Recalculate the positions of the boxes
                 son->box_pos = new int[soko_node::arr_size];

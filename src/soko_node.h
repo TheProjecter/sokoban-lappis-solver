@@ -31,6 +31,12 @@ class soko_node{
      */
     int last_pos;
     /**
+     * This char will hold the direction in which
+     * this node's father pushed the box.
+     * 'U' 'D' 'L' 'R'
+     */
+    char push_dir;
+    /**
      * The number of cells in the relative
      * representation of the board
      */
@@ -50,11 +56,14 @@ class soko_node{
      * @param last_pos  Relative position of the box
      *                  that the father of this node
      *                  pushed.
+     * 
+     * @param push_dir  Direction of the push that the
+     *                  father of this node made.
      *
      * @param father    A pointer to the father of the
      *                  node, NULL if is a root node
      */
-    soko_node(int last_pos, soko_node *father);
+    soko_node(int last_pos, char push_dir, soko_node *father);
 
     //Empty constructor
     soko_node(){ this->father=NULL; }
@@ -119,8 +128,10 @@ class soko_node{
 
     /**
      * Determines if the soko_node calling this method is a terminal node or not.
-     * i.e. if all boxes are in goal position.
+     * It does so by checking that there are no boxes in non-goal cells.
+     * Implementation allows for boards with more goal-cells than box-cells.
      *
+     * @param goals_pos         The positions of goal cells
      * 
      * @return                  True if node is a terminal node. False otherwise
      */

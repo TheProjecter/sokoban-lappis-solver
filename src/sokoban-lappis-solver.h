@@ -189,7 +189,18 @@ void precompute_neighbors(
  */
 soko_node* breadth_first_search(soko_node *init_node, int board_width,
                                 int* abs_to_rel_table, int *rel_to_abs_table,
-                                int (*neighbors)[4], int *num_neighbors, int *goals_pos);
+                                int (*neighbors)[4], int *num_neighbors,
+                                int *goals_pos);
 
+/**
+ * Creates the minimum sequence of moves to get
+ * from root node to the input node
+ *
+ * @param curr_node         Node that we must reach with the output string.
+ *
+ * @return                  A C-string with the moves
+ *                          coded as 'U' 'D' 'L' and 'R'
+ */
+char* search_path(soko_node *curr_node);
 
 #endif
