@@ -58,29 +58,33 @@ char* solve_sokoban(char *buffer, int buf_size){
     init_node->compute_area(   neighbors,
                     num_neighbors );
 
-    init_node->print( board_height,board_width, abs_to_rel_table);
-
     vector< soko_node* > *v = init_node->get_sons(board_width,
                                         abs_to_rel_table, rel_to_abs_table,
                                         neighbors, num_neighbors);
 
-    printf("OK BEFORE (size: %d)\n",(int)v->size());
+    //printf("OK BEFORE (size: %d)\n",(int)v->size());
 
-    for(int i=0; i< v->size() ;i++) {
-	printf("OK Start number %d\n",i);
-        (*v)[i]->print(board_height,board_width, abs_to_rel_table);
-	printf("OK End number %d\n",i);
-    }
+    //for(int i=0; i< v->size() ;i++) {
+	//printf("OK Start number %d\n",i);
+    //    (*v)[i]->print(board_height,board_width, abs_to_rel_table);
+	//printf("OK End number %d\n",i);
+    //}
 
-    printf("OK AFTER");
+    //printf("OK AFTER");
 
     soko_node* sol_node = breadth_first_search(init_node,board_width,
                                                 abs_to_rel_table,rel_to_abs_table,
                                                 neighbors,num_neighbors,goals_pos);
-	printf("OK LAST");    
-	char* sol = NULL;
 
-    return sol;
+    while(sol_node!=NULL){
+        sol_node->print(board_height,board_width, abs_to_rel_table);
+        sol_node = sol_node->father;
+    }
+	//printf("OK LAST");    
+	char *solo = new char[6];
+    solo[0]='U';
+    solo[1]='\0';
+    return solo;
 }
 
 int read_board( char* buffer, int buf_size, vector< string > &board ){
@@ -314,6 +318,8 @@ soko_node* breadth_first_search(soko_node *init_node, int board_width,
                 return (*sons)[i];
             fifo.push((*sons)[i]);
         }
+
+        delete sons;
 /*
         for( vector< soko_node* >::iterator iter = sons->begin(); iter != sons->end(); ++iter ) {
             if((*iter)->is_solution(goals_pos))
