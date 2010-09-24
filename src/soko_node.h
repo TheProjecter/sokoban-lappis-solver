@@ -117,6 +117,15 @@ class soko_node{
                                 int *rel_to_abs_table,
                                 int (*neighbors)[4], int *num_neighbors);
 
+    /**
+     * Determines if the soko_node calling this method is a terminal node or not.
+     * i.e. if all boxes are in goal position.
+     *
+     * 
+     * @return                  True if node is a terminal node. False otherwise
+     */
+    bool is_solution(int *goals_pos);
+
   private:
     /**
      * Given a box and a neighbor of the box (both in
@@ -140,7 +149,6 @@ class soko_node{
      */
     inline static int find_oposite(int board_width, int* abs_to_rel_table,
                      int *rel_to_abs_table, int box, int neigh);
-
 };
 
 

@@ -8,7 +8,6 @@
  */
 int int_bits = sizeof(int)*8;
 
-
 char* solve_sokoban(char *buffer, int buf_size){
 
     cout << "begin" << endl;   
@@ -64,13 +63,22 @@ char* solve_sokoban(char *buffer, int buf_size){
     vector< soko_node* > *v = init_node->get_sons(board_width,
                                         abs_to_rel_table, rel_to_abs_table,
                                         neighbors, num_neighbors);
-    for(int i=0; i<v->size() ;i++)
+
+    printf("OK BEFORE (size: %d)\n",(int)v->size());
+
+    for(int i=0; i< v->size() ;i++) {
+	printf("OK Start number %d\n",i);
         (*v)[i]->print(board_height,board_width, abs_to_rel_table);
+	printf("OK End number %d\n",i);
+    }
+
+    printf("OK AFTER");
 
     soko_node* sol_node = breadth_first_search(init_node,board_width,
                                                 abs_to_rel_table,rel_to_abs_table,
-                                                neighbors,num_neighbors);
-    char* sol = NULL;
+                                                neighbors,num_neighbors,goals_pos);
+	printf("OK LAST");    
+	char* sol = NULL;
 
     return sol;
 }
@@ -289,13 +297,11 @@ void precompute_neighbors(
 
 soko_node* breadth_first_search(soko_node *init_node, int board_width,
                                 int* abs_to_rel_table, int *rel_to_abs_table,
-                                int (*neighbors)[4], int *num_neighbors) {
+                                int (*neighbors)[4], int *num_neighbors, int *goals_pos) {
     soko_node* curr_node;
     vector< soko_node* > *sons;
     queue< soko_node* > fifo;
     fifo.push(init_node);
-
-    return NULL;
 
     while(!fifo.empty()){
         curr_node=fifo.front();
@@ -303,10 +309,18 @@ soko_node* breadth_first_search(soko_node *init_node, int board_width,
         
         sons=curr_node->get_sons(board_width, abs_to_rel_table, rel_to_abs_table, neighbors, num_neighbors);
 
-        for( vector< soko_node* >::iterator iter = sons->begin(); iter != sons->end(); ++iter ) {
-            // check if iter is terminal state
-            //fifo.push(*iter);
+        for( int i=0; i<sons->size(); i++) {
+            if( (*sons)[i]->is_solution(goals_pos) )
+                return (*sons)[i];
+            fifo.push((*sons)[i]);
         }
+/*
+        for( vector< soko_node* >::iterator iter = sons->begin(); iter != sons->end(); ++iter ) {
+            if((*iter)->is_solution(goals_pos))
+                return *iter;
+            fifo.push(*iter);
+        }
+*/
     }
     return NULL;
 }

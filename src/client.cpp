@@ -11,14 +11,18 @@ void function2 (char buffer[], int size, char **sol){
 	*sol = solution;	
 }
 
-void error(const char *msg)
-{
-    perror(msg);
+void error(const char* format, ... ) {
+    va_list args;
+    fprintf( stderr, "Error: " );
+    va_start( args, format );
+    vfprintf( stderr, format, args );
+    va_end( args );
+    fprintf( stderr, "\n" );
     exit(1);
 }
 
 //In case there's no internet connection
-//just read a random file
+//just read a selected file
 void read_from_file(char *filename,char **sol){
     FILE *file;
     char buffer[BUFFERSIZE];
@@ -33,10 +37,8 @@ void read_from_file(char *filename,char **sol){
         printf("BOARD:\n%s\n",buffer);
         *sol = solve_sokoban(buffer, n);
     }
-    else{
-        fprintf(stderr,"ERROR opening file '%s'",filename);
-        exit(1);
-    }
+    else
+        error("opening file '%s'",filename);
 }
 
 void read_from_server(char *board,char **sol){
@@ -48,12 +50,10 @@ void read_from_server(char *board,char **sol){
     char buffer[BUFFERSIZE];
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) 
-        error("ERROR opening socket");
+        error("opening socket");
     server = gethostbyname(ADDRESS);
-    if (server == NULL) {
-        fprintf(stderr,"ERROR, no such host\n");
-        exit(0);
-    }
+    if (server == NULL)
+        error("no such host");
     bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     bcopy((char *)server->h_addr, 
@@ -61,27 +61,27 @@ void read_from_server(char *board,char **sol){
          server->h_length);
     serv_addr.sin_port = htons(PORT);
     if (connect(sockfd,(const struct sockaddr*)&serv_addr,sizeof(serv_addr)) < 0) 
-        error("ERROR connecting");
+        error("connecting");
     n = write(sockfd,board,strlen(board));
     if (n < 0) 
-         error("ERROR writing to socket");
+         error("writing to socket");
     bzero(buffer,BUFFERSIZE);
     n = read(sockfd,buffer,BUFFERSIZE-1);
     if (n < 0) 
-         error("ERROR reading from socket");
+         error("reading from socket");
     
     printf("BOARD:\n%s\n",buffer);
     *sol = solve_sokoban(buffer, n);
 
     n = write(sockfd,*sol,strlen(*sol));
     if (n < 0) 
-         error("ERROR writing to socket");
+         error("writing to socket");
 
     bzero(buffer,BUFFERSIZE);
 
     n = read(sockfd,buffer,BUFFERSIZE-1);
     if (n < 0) 
-        error("ERROR reading from socket");
+        error("reading from socket");
 
     printf("%s\n",buffer);
 }
@@ -90,8 +90,7 @@ int main(int argc, char *argv[])
 {
     // parameter check
     if( (argc!=2 && argc!=3) || (argc==3 && strcmp(argv[1],"-f")!=0) ){
-        fprintf(stderr,"usage %s [-f] boardnum\n",argv[0]);
-        exit(1);
+        error("usage %s [-f] boardnum\n",argv[0]);
     }
 
     char *sol;
