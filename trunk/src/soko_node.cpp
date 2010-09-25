@@ -156,13 +156,13 @@ vector< soko_node* > *soko_node::get_sons(
 
                 char push_dir;
                 if( b_y - n_y == 1 )
-                    push_dir='R';
-                else if( b_y - n_y == -1 )
-                    push_dir='L';
-                else if( b_x - n_x == 1 )
                     push_dir='D';
-                else if( b_x - n_x == -1 )
+                else if( b_y - n_y == -1 )
                     push_dir='U';
+                else if( b_x - n_x == 1 )
+                    push_dir='R';
+                else if( b_x - n_x == -1 )
+                    push_dir='L';
                 
                 //Make your new son!
                 soko_node *son = new soko_node(box_cell,push_dir,this);

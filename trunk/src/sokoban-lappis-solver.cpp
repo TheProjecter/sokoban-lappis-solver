@@ -67,14 +67,17 @@ char* solve_sokoban(char *buffer, int buf_size){
                                                 rel_to_abs_table,neighbors,
                                                 num_neighbors,goals_pos);
 
-    while(sol_node!=NULL){
-        sol_node->print(board_height,board_width, abs_to_rel_table);
-        sol_node = sol_node->father;
-    }
-    
+    soko_node* curr_node;
+    for(curr_node=sol_node;curr_node!=NULL;curr_node = curr_node->father)
+        curr_node->print(board_height,board_width, abs_to_rel_table);
+
+    char *solo=search_path(sol_node,board.size()*board_width,board_width,
+                            abs_to_rel_table,rel_to_abs_table);
+    /*
     char *solo = new char[6];
     solo[0]='U';
     solo[1]='\0';
+    */
     return solo;
 }
 
@@ -146,49 +149,50 @@ int precompute_board(int board_width, vector< string > &board,
     //is the first valid position (it's always where the player starts)
     init_node->last_pos = 0;
     init_node->push_dir = '\0';
+    
     //display the board
-    //cout << "ABSOLUTE BOARD :"<< endl;
-    //for(int i=0; i<board_width*board.size();i++){
-    //    if (i%board_width == 0) cout << endl;
-    //    switch (abs_to_rel_table[i]){
-    //        case -1:
-    //            cout<< " " << WALLCHAR;
-    //            break;
-    //        default:
-    //            cout<<" " << (abs_to_rel_table[i]);
-    //    }
-    //}
+    cout << "ABSOLUTE BOARD :"<< endl;
+    for(int i=0; i<board_width*board.size();i++){
+        if (i%board_width == 0) cout << endl;
+        switch (abs_to_rel_table[i]){
+            case -1:
+                cout<< " " << WALLCHAR;
+                break;
+            default:
+                cout<<" " << (abs_to_rel_table[i]);
+        }
+    }
 
-    ////other boards
-    //cout << endl << "goals: ";
-    //for(int j=0; j<lists_size; j++){
-    //    int i=0;
-    //    int mask = 1;
-    //    while(i<int_bits){
-    //        if (mask & goals_pos[j]) cout << j*int_bits + i << " ";
-    //        mask <<= 1;
-    //        i++;
-    //    }
-    //}
+    //other boards
+    cout << endl << "goals: ";
+    for(int j=0; j<lists_size; j++){
+        int i=0;
+        int mask = 1;
+        while(i<int_bits){
+            if (mask & goals_pos[j]) cout << j*int_bits + i << " ";
+            mask <<= 1;
+            i++;
+        }
+    }
 
-    //cout << endl << "boxes : ";
-    //for(int j=0; j<lists_size; j++){
-    //    int i=0;
-    //    int mask = 1;
-    //    while(i<int_bits){
-    //        if (mask & (init_node->box_pos[j])) cout << j*int_bits + i << " ";
-    //        mask <<= 1;
-    //        i++;
-    //    }
-    //}
+    cout << endl << "boxes : ";
+    for(int j=0; j<lists_size; j++){
+        int i=0;
+        int mask = 1;
+        while(i<int_bits){
+            if (mask & (init_node->box_pos[j])) cout << j*int_bits + i << " ";
+            mask <<= 1;
+            i++;
+        }
+    }
 
-    //cout << endl << "rel_to_abs : ";
-    //for(int j=0; j<num_cell; j++){
-    //    int abs_value = rel_to_abs_table[j];
-    //    int y = abs_value/board_width;
-    //    int x = abs_value%board_width;
-    //    cout << "cell: " << j << " y: " << y << " x: " << x << endl;
-    //}
+    cout << endl << "rel_to_abs : ";
+    for(int j=0; j<num_cell; j++){
+        int abs_value = rel_to_abs_table[j];
+        int y = abs_value/board_width;
+        int x = abs_value%board_width;
+        cout << "cell: " << j << " y: " << y << " x: " << x << endl;
+    }
 
     //cout << endl << "num_cell: " << num_cell << endl;
     //cout << "Kevv part end here" << endl << endl;
@@ -320,7 +324,7 @@ char* search_path(soko_node *curr_node, int board_size, int board_width,
                             int *abs_to_rel_table, int *rel_to_abs_table) {
     char *path;
     if(curr_node->father==NULL) {
-        path=(char*)malloc(2048*sizeof(char));
+        path=(char*)malloc(64*2048*sizeof(char));
         path[0]='\0';
         return path;
     }
@@ -334,16 +338,16 @@ char* search_path(soko_node *curr_node, int board_size, int board_width,
     int ant_x=abs_neigh_to%board_width;
     switch(curr_node->push_dir){
         case 'U':
-            ant_x++;
-            break;
-        case 'D':
-            ant_x--;
-            break;
-        case 'L':
             ant_y++;
             break;
-        case 'R':
+        case 'D':
             ant_y--;
+            break;
+        case 'L':
+            ant_x++;
+            break;
+        case 'R':
+            ant_x--;
             break;
     }
     int to=abs_to_rel_table[ant_y*board_width + ant_x];
@@ -368,16 +372,108 @@ char* search_path(soko_node *curr_node, int board_size, int board_width,
     memset(move_d, 0, lists_size*sizeof(int));
     memset(move_l, 0, lists_size*sizeof(int));
     memset(move_r, 0, lists_size*sizeof(int));
-    visited[to_1] |= 1<<to_2;    
+    visited[to_1] |= 1<<to_2;
+
+    cout << "from: " << from << endl;
+    cout << "to: " << to << endl;
+    for(int i=0;i<lists_size;i++) {
+        cout << "visited " << i << ": " << visited[i] << endl;
+        cout << "move_u " << i << ": " << move_u[i] << endl;
+        cout << "move_d " << i << ": " << move_d[i] << endl;
+        cout << "move_l " << i << ": " << move_l[i] << endl;
+        cout << "move_r " << i << ": " << move_r[i] << endl;
+    }
+
+    int abs_last_pos=rel_to_abs_table[curr_node->last_pos];
+    int last_pos_y=abs_last_pos/board_width;
+    int last_pos_x=abs_last_pos%board_width;
+    
+    switch(curr_node->push_dir){
+        case 'U':
+            cout << "UP" << endl;
+            last_pos_y--;
+            break;
+        case 'D':
+            cout << "DOWN" << endl;
+            last_pos_y++;
+            break;
+        case 'L':
+            cout << "LEFT" << endl;
+            last_pos_x--;
+            break;
+        case 'R':
+            cout << "RIGHT" << endl;
+            last_pos_x++;
+            break;
+    }
+    abs_last_pos=last_pos_y*board_width+last_pos_x;
+    int rel_ignore_box=abs_to_rel_table[abs_last_pos];
 
     while( ( visited[ from_1 ] & 1<<from_2 ) == 0 ){
+        for(int i=0;i<lists_size;i++) {
+            cout << "visited " << i << ": " << visited[i] << endl;
+            cout << "move_u " << i << ": " << move_u[i] << endl;
+            cout << "move_d " << i << ": " << move_d[i] << endl;
+            cout << "move_l " << i << ": " << move_l[i] << endl;
+            cout << "move_r " << i << ": " << move_r[i] << endl;
+            cout << "from:" << (visited[ from_1 ] & 1<<from_2) << endl;
+        }
+
         for(int p1 = 0; p1 < soko_node::arr_size; p1++){
             for(int p2 = 0; p2 < int_bits; p2++ ){
                 if( visited[p1] & 1<<p2 ) {
-                    //check for all neighbors which are in the area but not in visited.
-                    // for each of these set a 1 on the right bit of the u l r d bitmaps.
+                    // check for all neighbors which are in the area
+                    // but not in boxes nor visited.
+                    // for each of these set a 1 on the right bit of
+                    // the u l r d bitmaps.
+                    int rel_p=p1*int_bits+p2;
+                    int abs_p=rel_to_abs_table[rel_p];
+                    int p_y=abs_p/board_width;
+                    int p_x=abs_p%board_width;
                     
-                    
+                    int n_y=p_y+1;
+                    int n_x=p_x;
+                    int abs_n=n_y*board_width+n_x;
+                    int rel_n=abs_to_rel_table[abs_n];
+                    int n1=rel_n/int_bits;
+                    int n2=rel_n%int_bits;
+                    if((visited[n1] & 1<<n2)==0 &&
+            (curr_node->father->area[n1] & ~curr_node->father->box_pos[n1] & 1<<n2)
+                      && rel_n != curr_node->last_pos)
+                        move_u[n1]|=1<<n2;
+
+                    n_y=p_y-1;
+                    n_x=p_x;
+                    abs_n=n_y*board_width+n_x;
+                    rel_n=abs_to_rel_table[abs_n];
+                    n1=rel_n/int_bits;
+                    n2=rel_n%int_bits;
+                    if((visited[n1] & 1<<n2)==0 &&
+            (curr_node->father->area[n1] & ~curr_node->father->box_pos[n1] & 1<<n2)
+                      && rel_n != curr_node->last_pos)
+                        move_d[n1]|=1<<n2;
+
+                    n_y=p_y;
+                    n_x=p_x+1;
+                    abs_n=n_y*board_width+n_x;
+                    rel_n=abs_to_rel_table[abs_n];
+                    n1=rel_n/int_bits;
+                    n2=rel_n%int_bits;
+                    if((visited[n1] & 1<<n2)==0 &&
+            (curr_node->father->area[n1] & ~curr_node->father->box_pos[n1] & 1<<n2)
+                      && rel_n != curr_node->last_pos)
+                        move_l[n1]|=1<<n2;
+
+                    n_y=p_y;
+                    n_x=p_x-1;
+                    abs_n=n_y*board_width+n_x;
+                    rel_n=abs_to_rel_table[abs_n];
+                    n1=rel_n/int_bits;
+                    n2=rel_n%int_bits;
+                    if((visited[n1] & 1<<n2)==0 &&
+            (curr_node->father->area[n1] & ~curr_node->father->box_pos[n1] & 1<<n2)
+                      && rel_n != curr_node->last_pos)
+                        move_r[n1]|=1<<n2;
                 }
             }
         // update visited as bitwise-or of move_u-d-l-r
@@ -388,7 +484,17 @@ char* search_path(soko_node *curr_node, int board_size, int board_width,
         }
     }
     
-    // path found, decode string
+    cout << "path Found!! Startig Recovery:" << endl;
+        for(int i=0;i<lists_size;i++) {
+            cout << "visited " << i << ": " << visited[i] << endl;
+            cout << "move_u " << i << ": " << move_u[i] << endl;
+            cout << "move_d " << i << ": " << move_d[i] << endl;
+            cout << "move_l " << i << ": " << move_l[i] << endl;
+            cout << "move_r " << i << ": " << move_r[i] << endl;
+            cout << "from:" << (visited[ from_1 ] & 1<<from_2) << endl;
+        }
+
+// path found, decode string
     int l=strlen(path);
     int pos_1=from_1;
     int pos_2=from_2;
@@ -401,19 +507,19 @@ char* search_path(soko_node *curr_node, int board_size, int board_width,
         
         if(move_u[pos_1] & 1<<pos_2) {
             path[l++]='U';
-            apos_x--;
+            apos_y--;
         }
         else if(move_d[pos_1] & 1<<pos_2) {
             path[l++]='D';
-            apos_x++;
+            apos_y++;
         }
         else if(move_l[pos_1] & 1<<pos_2) {
             path[l++]='L';
-            apos_y--;
+            apos_x--;
         }
         else{
             path[l++]='R';
-            apos_y++;
+            apos_x++;
         }
         path[l++]=' ';
         abs_pos=apos_y*board_width+apos_x;
@@ -430,6 +536,8 @@ char* search_path(soko_node *curr_node, int board_size, int board_width,
     free(move_d);
     free(move_l);
     free(move_r);
+
+    cout << "OK" << endl;
 
     return path;
 }
