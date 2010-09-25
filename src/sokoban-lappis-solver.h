@@ -193,8 +193,8 @@ soko_node* breadth_first_search(soko_node *init_node, int board_width,
                                 int *goals_pos);
 
 /**
- * Creates the minimum sequence of moves to get
- * from root node to the input node
+ * Finds the minimum sequence of moves to get
+ * from root node of the tree to the input node
  *
  * @param curr_node         Node that we must reach with the output string.
  *
