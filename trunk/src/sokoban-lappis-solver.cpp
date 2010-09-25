@@ -374,7 +374,7 @@ char* search_path(soko_node *curr_node, int board_size, int board_width,
     memset(move_r, 0, lists_size*sizeof(int));
     visited[to_1] |= 1<<to_2;
 
-    cout << "from: " << from << endl;
+    /*cout << "from: " << from << endl;
     cout << "to: " << to << endl;
     for(int i=0;i<lists_size;i++) {
         cout << "visited " << i << ": " << visited[i] << endl;
@@ -382,7 +382,7 @@ char* search_path(soko_node *curr_node, int board_size, int board_width,
         cout << "move_d " << i << ": " << move_d[i] << endl;
         cout << "move_l " << i << ": " << move_l[i] << endl;
         cout << "move_r " << i << ": " << move_r[i] << endl;
-    }
+    }*/
 
     int abs_last_pos=rel_to_abs_table[curr_node->last_pos];
     int last_pos_y=abs_last_pos/board_width;
@@ -390,19 +390,15 @@ char* search_path(soko_node *curr_node, int board_size, int board_width,
     
     switch(curr_node->push_dir){
         case 'U':
-            cout << "UP" << endl;
             last_pos_y--;
             break;
         case 'D':
-            cout << "DOWN" << endl;
             last_pos_y++;
             break;
         case 'L':
-            cout << "LEFT" << endl;
             last_pos_x--;
             break;
         case 'R':
-            cout << "RIGHT" << endl;
             last_pos_x++;
             break;
     }
@@ -410,14 +406,14 @@ char* search_path(soko_node *curr_node, int board_size, int board_width,
     int rel_ignore_box=abs_to_rel_table[abs_last_pos];
 
     while( ( visited[ from_1 ] & 1<<from_2 ) == 0 ){
-        for(int i=0;i<lists_size;i++) {
+        /*for(int i=0;i<lists_size;i++) {
             cout << "visited " << i << ": " << visited[i] << endl;
             cout << "move_u " << i << ": " << move_u[i] << endl;
             cout << "move_d " << i << ": " << move_d[i] << endl;
             cout << "move_l " << i << ": " << move_l[i] << endl;
             cout << "move_r " << i << ": " << move_r[i] << endl;
             cout << "from:" << (visited[ from_1 ] & 1<<from_2) << endl;
-        }
+        }*/
 
         for(int p1 = 0; p1 < soko_node::arr_size; p1++){
             for(int p2 = 0; p2 < int_bits; p2++ ){
@@ -484,7 +480,7 @@ char* search_path(soko_node *curr_node, int board_size, int board_width,
         }
     }
     
-    cout << "path Found!! Startig Recovery:" << endl;
+    /*cout << "path Found!! Startig Recovery:" << endl;
         for(int i=0;i<lists_size;i++) {
             cout << "visited " << i << ": " << visited[i] << endl;
             cout << "move_u " << i << ": " << move_u[i] << endl;
@@ -492,7 +488,7 @@ char* search_path(soko_node *curr_node, int board_size, int board_width,
             cout << "move_l " << i << ": " << move_l[i] << endl;
             cout << "move_r " << i << ": " << move_r[i] << endl;
             cout << "from:" << (visited[ from_1 ] & 1<<from_2) << endl;
-        }
+        }*/
 
 // path found, decode string
     int l=strlen(path);
@@ -536,8 +532,6 @@ char* search_path(soko_node *curr_node, int board_size, int board_width,
     free(move_d);
     free(move_l);
     free(move_r);
-
-    cout << "OK" << endl;
 
     return path;
 }
