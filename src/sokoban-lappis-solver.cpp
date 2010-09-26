@@ -10,15 +10,10 @@ int int_bits = sizeof(int)*8;
 
 char* solve_sokoban(char *buffer, int buf_size){
 
-    cout << "begin" << endl;   
- 
     vector< string > board;
 
     //Read and get the initial board
     int board_width = read_board(buffer,buf_size,board);
-
-    for(int i=0;i<board.size();i++)
-        cout << board[i] << endl;
 
     //Precompute the board and initialize the
     //tables
@@ -67,9 +62,9 @@ char* solve_sokoban(char *buffer, int buf_size){
                                                 rel_to_abs_table,neighbors,
                                                 num_neighbors,goals_pos);
 
-    soko_node* curr_node;
-    for(curr_node=sol_node;curr_node!=NULL;curr_node = curr_node->father)
-        curr_node->print(board_height,board_width, abs_to_rel_table);
+    //soko_node* curr_node;
+    //for(curr_node=sol_node;curr_node!=NULL;curr_node = curr_node->father)
+    //    curr_node->print(board_height,board_width, abs_to_rel_table);
 
     char *solo=search_path(sol_node,board.size()*board_width,board_width,
                             abs_to_rel_table,rel_to_abs_table);
@@ -151,48 +146,48 @@ int precompute_board(int board_width, vector< string > &board,
     init_node->push_dir = '\0';
     
     //display the board
-    cout << "ABSOLUTE BOARD :"<< endl;
-    for(int i=0; i<board_width*board.size();i++){
-        if (i%board_width == 0) cout << endl;
-        switch (abs_to_rel_table[i]){
-            case -1:
-                cout<< " " << WALLCHAR;
-                break;
-            default:
-                cout<<" " << (abs_to_rel_table[i]);
-        }
-    }
+    //cout << "ABSOLUTE BOARD :"<< endl;
+    //for(int i=0; i<board_width*board.size();i++){
+    //    if (i%board_width == 0) cout << endl;
+    //    switch (abs_to_rel_table[i]){
+    //        case -1:
+    //            cout<< " " << WALLCHAR;
+    //            break;
+    //        default:
+    //            cout<<" " << (abs_to_rel_table[i]);
+    //    }
+    //}
 
-    //other boards
-    cout << endl << "goals: ";
-    for(int j=0; j<lists_size; j++){
-        int i=0;
-        int mask = 1;
-        while(i<int_bits){
-            if (mask & goals_pos[j]) cout << j*int_bits + i << " ";
-            mask <<= 1;
-            i++;
-        }
-    }
+    ////other boards
+    //cout << endl << "goals: ";
+    //for(int j=0; j<lists_size; j++){
+    //    int i=0;
+    //    int mask = 1;
+    //    while(i<int_bits){
+    //        if (mask & goals_pos[j]) cout << j*int_bits + i << " ";
+    //        mask <<= 1;
+    //        i++;
+    //    }
+    //}
 
-    cout << endl << "boxes : ";
-    for(int j=0; j<lists_size; j++){
-        int i=0;
-        int mask = 1;
-        while(i<int_bits){
-            if (mask & (init_node->box_pos[j])) cout << j*int_bits + i << " ";
-            mask <<= 1;
-            i++;
-        }
-    }
+    //cout << endl << "boxes : ";
+    //for(int j=0; j<lists_size; j++){
+    //    int i=0;
+    //    int mask = 1;
+    //    while(i<int_bits){
+    //        if (mask & (init_node->box_pos[j])) cout << j*int_bits + i << " ";
+    //        mask <<= 1;
+    //        i++;
+    //    }
+    //}
 
-    cout << endl << "rel_to_abs : ";
-    for(int j=0; j<num_cell; j++){
-        int abs_value = rel_to_abs_table[j];
-        int y = abs_value/board_width;
-        int x = abs_value%board_width;
-        cout << "cell: " << j << " y: " << y << " x: " << x << endl;
-    }
+    //cout << endl << "rel_to_abs : ";
+    //for(int j=0; j<num_cell; j++){
+    //    int abs_value = rel_to_abs_table[j];
+    //    int y = abs_value/board_width;
+    //    int x = abs_value%board_width;
+    //    cout << "cell: " << j << " y: " << y << " x: " << x << endl;
+    //}
 
     //cout << endl << "num_cell: " << num_cell << endl;
     //cout << "Kevv part end here" << endl << endl;
@@ -316,6 +311,7 @@ soko_node* breadth_first_search(soko_node *init_node, int board_width,
                 return (*sons)[i];
             fifo.push((*sons)[i]);
         }
+        delete sons;
     }
     return NULL;
 }
