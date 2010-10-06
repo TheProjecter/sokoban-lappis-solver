@@ -45,6 +45,14 @@ char* solve_sokoban(char *buffer, int buf_size){
                         neighbors, num_neighbors
                     );
 
+    //Initialize deadlocks
+    int *deadlock_list;
+    deadlock_list = (int*) malloc(sizeof(int) * num_cells);
+    init_deadlock_list(rel_to_abs_table, abs_to_rel_table,
+		       deadlock_list, neighbors, 
+		       num_neighbors, goals_pos, num_cells, board_width);
+
+
     //Make the auxiliary stack and compute the initial area
     int *stack_arr = new int[num_cells];
     //Let the soko_node class have the array as a static variable
@@ -144,53 +152,9 @@ int precompute_board(int board_width, vector< string > &board,
     //is the first valid position (it's always where the player starts)
     init_node->last_pos = 0;
     init_node->push_dir = '\0';
+		       
+
     
-    //display the board
-    //cout << "ABSOLUTE BOARD :"<< endl;
-    //for(int i=0; i<board_width*board.size();i++){
-    //    if (i%board_width == 0) cout << endl;
-    //    switch (abs_to_rel_table[i]){
-    //        case -1:
-    //            cout<< " " << WALLCHAR;
-    //            break;
-    //        default:
-    //            cout<<" " << (abs_to_rel_table[i]);
-    //    }
-    //}
-
-    ////other boards
-    //cout << endl << "goals: ";
-    //for(int j=0; j<lists_size; j++){
-    //    int i=0;
-    //    int mask = 1;
-    //    while(i<int_bits){
-    //        if (mask & goals_pos[j]) cout << j*int_bits + i << " ";
-    //        mask <<= 1;
-    //        i++;
-    //    }
-    //}
-
-    //cout << endl << "boxes : ";
-    //for(int j=0; j<lists_size; j++){
-    //    int i=0;
-    //    int mask = 1;
-    //    while(i<int_bits){
-    //        if (mask & (init_node->box_pos[j])) cout << j*int_bits + i << " ";
-    //        mask <<= 1;
-    //        i++;
-    //    }
-    //}
-
-    //cout << endl << "rel_to_abs : ";
-    //for(int j=0; j<num_cell; j++){
-    //    int abs_value = rel_to_abs_table[j];
-    //    int y = abs_value/board_width;
-    //    int x = abs_value%board_width;
-    //    cout << "cell: " << j << " y: " << y << " x: " << x << endl;
-    //}
-
-    //cout << endl << "num_cell: " << num_cell << endl;
-    //cout << "Kevv part end here" << endl << endl;
     return num_cell;
 }
 
@@ -244,6 +208,136 @@ inline void add_to_list(int* liste, int index){
     int u = index / int_bits;
     int w = index % int_bits;
     liste[u] |= 1<<w;
+}
+
+void init_deadlock_list(int *rel_to_abs_table, int *abs_to_rel_table,
+			int *deadlock_list, int (*neighbors)[4], 
+			int *&num_neighbors, int *goals,
+			int num_cell, int board_width){
+
+    int direction[2][2] = {{0,0},{0,0}};
+
+    //test every cells to decide whether it's a deadlock or not
+    //this loop only determine edges deadlock
+    for(int i=0; i<num_cell;i++){
+	//if it is a goal, it's not a deadlock
+	int p1 = i / int_bits;
+	int p2 = i % int_bits;
+	if (goals[p1] & (1<<p2)) continue;
+
+	//if 1 neighbors, it's a deadlock
+	if (num_neighbors[i] == 1) add_to_list(deadlock_list, i);
+
+	//if 2 neigbhors, we have to know more to decide
+	if (num_neighbors[i] == 2){
+	    //calculate absolute position of each cells
+	    int abs_pos_0 = rel_to_abs_table[neighbors[i][0]];
+	    int abs_pos_1 = rel_to_abs_table[neighbors[i][1]];
+	    int cy0 = abs_pos_0 / board_width;
+	    int cx0 = abs_pos_0 % board_width;
+	    int cy1 = abs_pos_1 / board_width;
+	    int cx1 = abs_pos_1 % board_width;
+	    
+	    if ((cx0 != cx1) && (cy0 != cy1)){
+		int abs_pos = rel_to_abs_table[i];
+		int cy = abs_pos / board_width;
+		int cx = abs_pos % board_width;
+		    
+		//add this cell to the deadlock list
+		add_to_list(deadlock_list, i);
+	    }
+	}
+    }
+
+    //test again every cells to determine
+    //dead ends beside walls
+    for(int i=0; i<num_cell;i++){
+	//if 2 neigbhors, we have to know more to decide
+	if (num_neighbors[i] == 2){
+	    //calculate absolute position of each cells
+	    int abs_pos_0 = rel_to_abs_table[neighbors[i][0]];
+	    int abs_pos_1 = rel_to_abs_table[neighbors[i][1]];
+	    int cy0 = abs_pos_0 / board_width;
+	    int cx0 = abs_pos_0 % board_width;
+	    int cy1 = abs_pos_1 / board_width;
+	    int cx1 = abs_pos_1 % board_width;
+	    
+	    if ((cx0 != cx1) && (cy0 != cy1)){
+		int abs_pos = rel_to_abs_table[i];
+		int cy = abs_pos / board_width;
+		int cx = abs_pos % board_width;
+		
+		//check for the whole line beside the wall
+		direction[0][0] = cx0 - cx;
+		direction[0][1] = cy0 - cy;
+		direction[1][0] = cx1 - cx;
+		direction[1][1] = cy1 - cy;
+
+		//test direction 0
+		init_deadlock_beside_wall(rel_to_abs_table,
+					  abs_to_rel_table,
+					  deadlock_list, goals,
+					  direction, 0, i ,board_width);
+
+		
+		//test direction 1
+		init_deadlock_beside_wall(rel_to_abs_table,
+					  abs_to_rel_table,
+					  deadlock_list, goals,
+					  direction, 1, i ,board_width);
+	    }
+	}
+    }
+}
+
+
+bool init_deadlock_beside_wall(int *rel_to_abs_table,
+			       int *abs_to_rel_table,
+			       int *deadlock_list, 
+			       int *goals,
+			       int direction[2][2], int dir,
+			       int from_cell, int board_width){
+
+
+    //calculate absolute position of cells
+    //previous cell
+    int abs_pos = rel_to_abs_table[from_cell];
+    int cy = abs_pos / board_width;
+    int cx = abs_pos % board_width;
+    
+    //new tested cell
+    int nx = cx + direction[dir][0];
+    int ny = cy + direction[dir][1];
+    int nc = abs_to_rel_table[ny*board_width + nx];
+    
+    //is nc already a known deadlock ?
+    int p1 = nc / int_bits;
+    int p2 = nc % int_bits;
+    if (deadlock_list[p1] & (1<<p2)) return true;
+
+    //is nc a goal ?
+    if (goals[p1] & (1<<p2)) return false;
+
+    //is the nc still beside a wall ?
+    int wall_dir = (dir == 0 ? 1 : 0);
+    int wallx = nx - direction[wall_dir][0];
+    int wally = ny - direction[wall_dir][1];
+    int wallc = abs_to_rel_table[wally*board_width + wallx];
+
+    if (abs_to_rel_table[wally*board_width + wallx] != -1) return false;
+
+    //continue the tests :
+    //if the next cell in that direction is a deadlock,
+    //then nc is also a deadlock. Then, we add nc return true
+    if (init_deadlock_beside_wall(rel_to_abs_table,
+				  abs_to_rel_table,
+				  deadlock_list, goals,
+				  direction, dir, nc, board_width)){
+	add_to_list(deadlock_list, nc);
+	return true;
+    }else{
+	return false;
+    }
 }
 
 void precompute_neighbors(
