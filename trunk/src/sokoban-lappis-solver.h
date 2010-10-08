@@ -49,7 +49,7 @@ char* solve_sokoban(char *buffer, int buf_size);
  * @return          The width of the board
  */
 int read_board(char *buffer, int buf_size,
-                vector< string > &board );
+			   vector< string > &board );
 
 /**
  * Make all the necessary precomputations to begin the
@@ -86,10 +86,10 @@ int read_board(char *buffer, int buf_size,
  *                          of the game.
  */
 int precompute_board(
-            int board_width,  vector< string > &board,
-            int *&abs_to_rel_table, int *&rel_to_abs_table,
-            int *&goals_pos, soko_node *&init_node
-            );
+					 int board_width,  vector< string > &board,
+					 int *&abs_to_rel_table, int *&rel_to_abs_table,
+					 int *&goals_pos, soko_node *&init_node
+					 );
 
 /* flood the board to find which cells are inside
  * @param board             The board of the game (as a vector of
@@ -122,8 +122,8 @@ int precompute_board(
  *
  */
 void dfs(vector< string > &board, int *abs_to_rel_table,
-	 int *rel_to_abs_table, int *goals_pos, int *box_pos,
-	 const int moves[4][2], int, int, int, int &c);
+		 int *rel_to_abs_table, int *goals_pos, int *box_pos,
+		 const int moves[4][2], int, int, int, int &c);
 
 /* Determine which cell are deadlocks. Boxes should never be put
  * on these cells.
@@ -152,13 +152,14 @@ void dfs(vector< string > &board, int *abs_to_rel_table,
  *
  */
 void init_deadlock_list(int *rel_to_abs_table, int *abs_to_rel_table,
-			int *deadlock_list, int (*neighbors)[4], 
-			int *&num_neighbors, int *goals,
-			int num_cell, int board_width);
+						int *deadlock_list, int (*neighbors)[4], 
+						int *&num_neighbors, int *goals,
+						int num_cell, int board_width);
 
 /* Function used by the deadlock search at the beginning.
  * Some cells are against walls and so can be deadlocks.
- * unless there is a goal on the line.
+ * Box beside a wall is deadlock unless there is a goal on the line,
+ * or it's possible to push away from the wall
  *
  * @param rel_to_abs_table  Translation table, same as usual.
  *
@@ -176,15 +177,40 @@ void init_deadlock_list(int *rel_to_abs_table, int *abs_to_rel_table,
  *
  */
 bool init_deadlock_beside_wall(int *rel_to_abs_table,
-			       int *abs_to_rel_table,
-			       int *deadlock_list, 
-			       int *goals,
-			       int direction[2][2], int dir,
-			       int from_cell, int board_width);
+							   int *abs_to_rel_table,
+							   int *deadlock_list, 
+							   int *goals,
+							   int direction[2][2], int dir,
+							   int from_cell, int board_width);
+
+
+/* Function that evaluate if a node is a deadlock or if we
+ * can continue with it. Return true if on a deadlock
+ *
+ * @param rel_to_abs_table  Translation table, same as usual.
+ *
+ * @param abs_to_rel_table  Translation table, same as usual.
+ *
+ * @param deadlock_list     Deadlock cells
+ *
+ * @param neighbors         Define the neighbors
+ *
+ * @param num_neighbors     Help defining the neighbors
+ *
+ * @param node              Evaluate a node
+ *
+ * @param num_cell          How many cell on the board ?
+ *
+ */
+bool is_deadlock(int *rel_to_abs_table, int *abs_to_rel_table,
+                 int *deadlock_list, int (*neighbors)[4], 
+                 int *&num_neighbors, soko_node *node,
+                 int num_cell);
+                 
 
 
 inline void add_to_list(int* list, int index);
-    
+
 /**
  * This function precomputes the neighbors of
  * every cell in the relative representation of the
@@ -214,10 +240,10 @@ inline void add_to_list(int* list, int index);
  *                          board.
  */
 void precompute_neighbors(
-                    int board_height, int board_width, int num_cells,
-                    int *abs_to_rel_table, int *rel_to_abs_table,
-                    int (*neighbors)[4], int *&num_neighbors
-                );
+						  int board_height, int board_width, int num_cells,
+						  int *abs_to_rel_table, int *rel_to_abs_table,
+						  int (*neighbors)[4], int *&num_neighbors
+						  );
 
 /**
  * Takes initial soko_node and does a breadth-first search
@@ -233,6 +259,10 @@ void precompute_neighbors(
  * @param rel_to_abs_table  Transformation table from relative
  *                          positions to absolute ones.
  *
+ * @param deadlock_list     List of deadlock cells
+ *
+ * @param num_cells         Total amount of cells on the board
+ *
  * @param neighbors         A matrix with the neighboring cells
  *                          of every cell in the relative representation
  *
@@ -247,6 +277,7 @@ void precompute_neighbors(
  */
 soko_node* breadth_first_search(soko_node *init_node, int board_width,
                                 int* abs_to_rel_table, int *rel_to_abs_table,
+                                int* deadlock_list, int num_cells,
                                 int (*neighbors)[4], int *num_neighbors,
                                 int *goals_pos);
 
@@ -271,6 +302,6 @@ soko_node* breadth_first_search(soko_node *init_node, int board_width,
  *                          coded as 'U' 'D' 'L' and 'R'
  */
 char* search_path(soko_node *curr_node, int board_size, int board_width,
-                            int *abs_to_rel_table, int *rel_to_abs_table);
+				  int *abs_to_rel_table, int *rel_to_abs_table);
 
 #endif

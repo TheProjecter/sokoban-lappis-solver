@@ -7,80 +7,87 @@
  * where this code is runned
  */
 int int_bits = sizeof(int)*8;
+int nb_node = 0;
 
 char* solve_sokoban(char *buffer, int buf_size){
-
+	
     vector< string > board;
-
+	
     //Read and get the initial board
     int board_width = read_board(buffer,buf_size,board);
-
+	
     //Precompute the board and initialize the
     //tables
     int *abs_to_rel_table, *rel_to_abs_table, *goals_pos;
     soko_node *init_node;
-
-    int num_cells = precompute_board(
-                        board_width, board, abs_to_rel_table,
-                        rel_to_abs_table, goals_pos,
-                        init_node);
-
+	
+    int num_cells = precompute_board(board_width, board, abs_to_rel_table,
+									 rel_to_abs_table, goals_pos,
+									 init_node);
+	
     //Save the number of cells for every node
     //and the number of ints needed for each bitmap
     soko_node::num_cells = num_cells;
     soko_node::arr_size = num_cells/int_bits;
     if(num_cells%int_bits!=0) soko_node::arr_size++;
-
+	
     //Get the height of the board
     int board_height = board.size();
-
-
+	
+	
     //Precompute the neighbors matrix 
     int (*neighbors)[4], *num_neighbors;
     neighbors = new int[num_cells][4];
     
-    precompute_neighbors(
-                        board_height, board_width, num_cells,
-                        abs_to_rel_table, rel_to_abs_table,
-                        neighbors, num_neighbors
-                    );
-
+    precompute_neighbors(board_height, board_width, num_cells,
+						 abs_to_rel_table, rel_to_abs_table,
+						 neighbors, num_neighbors
+						 );
+	
     //Initialize deadlocks
     int *deadlock_list;
     deadlock_list = (int*) malloc(sizeof(int) * num_cells);
     init_deadlock_list(rel_to_abs_table, abs_to_rel_table,
-		       deadlock_list, neighbors, 
-		       num_neighbors, goals_pos, num_cells, board_width);
-
-
+					   deadlock_list, neighbors, 
+					   num_neighbors, goals_pos, num_cells, board_width);
+	
+	
     //Make the auxiliary stack and compute the initial area
     int *stack_arr = new int[num_cells];
     //Let the soko_node class have the array as a static variable
     soko_node :: stack_arr = stack_arr;
-
+	
     init_node->compute_area(   neighbors,
-                    num_neighbors );
-
+							num_neighbors );
+	
     vector< soko_node* > *v = init_node->get_sons(board_width,
-                                        abs_to_rel_table, rel_to_abs_table,
-                                        neighbors, num_neighbors);
-
+												  abs_to_rel_table, rel_to_abs_table,
+                                                  neighbors, num_neighbors);
+    
     soko_node* sol_node = breadth_first_search(init_node,board_width,
-                                                abs_to_rel_table,
-                                                rel_to_abs_table,neighbors,
-                                                num_neighbors,goals_pos);
-
+											   abs_to_rel_table,
+											   rel_to_abs_table,
+                                               deadlock_list,
+                                               num_cells,
+                                               neighbors,
+											   num_neighbors,goals_pos);
+    
+	
     //soko_node* curr_node;
     //for(curr_node=sol_node;curr_node!=NULL;curr_node = curr_node->father)
     //    curr_node->print(board_height,board_width, abs_to_rel_table);
-
+	
     char *solo=search_path(sol_node,board.size()*board_width,board_width,
-                            abs_to_rel_table,rel_to_abs_table);
+						   abs_to_rel_table,rel_to_abs_table);
+      
+    
+    cout << "nb node : " << nb_node <<endl;
+    
     /*
-    char *solo = new char[6];
-    solo[0]='U';
-    solo[1]='\0';
-    */
+	 char *solo = new char[6];
+	 solo[0]='U';
+	 solo[1]='\0';
+	 */
     return solo;
 }
 
@@ -89,7 +96,7 @@ int read_board( char* buffer, int buf_size, vector< string > &board ){
     int n = 0;
     int m = 0;
     int k = 0;
-
+	
     while(k<buf_size){
         string s = "";
         while(buffer[k]!='\n' && buffer[k]!='\0')
@@ -99,29 +106,29 @@ int read_board( char* buffer, int buf_size, vector< string > &board ){
         n = max(n,(int)s.length());
         k++;
     }
-
+	
     return n;
 }
 
 
 int precompute_board(int board_width, vector< string > &board,
-		     int *&abs_to_rel_table, int *&rel_to_abs_table,
-             int *&goals_pos, soko_node *&init_node ) {
-
+					 int *&abs_to_rel_table, int *&rel_to_abs_table,
+					 int *&goals_pos, soko_node *&init_node ) {
+	
     int board_size = board.size() * board_width;
     int lists_size = board_size/int_bits;
     if (board_size%int_bits != 0) lists_size++;
     int guy_x, guy_y, num_cell=0;
     const int moves[4][2] = {{1, 0},{0, 1},{-1, 0},{0,-1}};
     char c;
-
+	
     //allocate memory for boards
     abs_to_rel_table = (int*) malloc(sizeof(int) * board_size);
     rel_to_abs_table = (int*) malloc(sizeof(int)* board_size);
     goals_pos = (int*) malloc(lists_size*sizeof(int));
     init_node = new soko_node();
     init_node->box_pos = (int*) malloc(lists_size*sizeof(int));
-
+	
     //make the String board square
     //and find the guy
     for(int i=0;i<board.size();i++){
@@ -135,39 +142,39 @@ int precompute_board(int board_width, vector< string > &board,
             }
         }
     }
-
+	
     //fill in the board with UNKNOWN value
     memset(abs_to_rel_table, -1, board_size*sizeof(int));
     memset(rel_to_abs_table, 0, board_size*sizeof(int));
     memset(goals_pos, 0, lists_size*sizeof(int));
     memset(init_node->box_pos, 0, lists_size*sizeof(int));
-
+	
     //use DFS to fill in the board
     dfs(board, abs_to_rel_table,
-            rel_to_abs_table, goals_pos, init_node->box_pos,
-            moves, board_width, guy_x, guy_y, num_cell);
-
+		rel_to_abs_table, goals_pos, init_node->box_pos,
+		moves, board_width, guy_x, guy_y, num_cell);
+	
     //For the initial state, the relative cell number 0
     //and dir_push is '\0' character
     //is the first valid position (it's always where the player starts)
     init_node->last_pos = 0;
     init_node->push_dir = '\0';
-		       
-
+	
+	
     
     return num_cell;
 }
 
 void dfs(vector< string > &board, int *abs_to_rel_table, 
-	 int *rel_to_abs_table, int *goals_pos, int *box_pos,
-     const int moves[4][2], int board_width, int x, int y, int &c){   
-
+		 int *rel_to_abs_table, int *goals_pos, int *box_pos,
+		 const int moves[4][2], int board_width, int x, int y, int &c){   
+	
     int nx, ny;
-
+	
     //already visited cell
     if (abs_to_rel_table[x+y*board_width] != -1)
         return;
-
+	
     switch(board[y][x]){
         case WALLCHAR:
             return;
@@ -185,7 +192,7 @@ void dfs(vector< string > &board, int *abs_to_rel_table,
             add_to_list(box_pos, c);
             break;
     }
-
+	
     //add values to translation tables
     abs_to_rel_table[x+y*board_width] = c;
     rel_to_abs_table[c] = x+y*board_width;
@@ -196,7 +203,7 @@ void dfs(vector< string > &board, int *abs_to_rel_table,
         if(0<=nx && nx < board_width &&
            0<=ny && ny < board.size() &&
            board[ny][nx] != WALLCHAR)
-
+			
             dfs(board, abs_to_rel_table,
                 rel_to_abs_table, goals_pos, box_pos,
                 moves, board_width, nx, ny, c);
@@ -204,101 +211,96 @@ void dfs(vector< string > &board, int *abs_to_rel_table,
 }
 
 inline void add_to_list(int* liste, int index){
-    int val;
     int u = index / int_bits;
     int w = index % int_bits;
     liste[u] |= 1<<w;
 }
 
 void init_deadlock_list(int *rel_to_abs_table, int *abs_to_rel_table,
-			int *deadlock_list, int (*neighbors)[4], 
-			int *&num_neighbors, int *goals,
-			int num_cell, int board_width){
-
+						int *deadlock_list, int (*neighbors)[4], 
+						int *&num_neighbors, int *goals,
+						int num_cell, int board_width){
+	
     int direction[2][2] = {{0,0},{0,0}};
-
+	
     //test every cells to decide whether it's a deadlock or not
     //this loop only determine edges deadlock
     for(int i=0; i<num_cell;i++){
-	//if it is a goal, it's not a deadlock
-	int p1 = i / int_bits;
-	int p2 = i % int_bits;
-	if (goals[p1] & (1<<p2)) continue;
-
-	//if 1 neighbors, it's a deadlock
-	if (num_neighbors[i] == 1) add_to_list(deadlock_list, i);
-
-	//if 2 neigbhors, we have to know more to decide
-	if (num_neighbors[i] == 2){
-	    //calculate absolute position of each cells
-	    int abs_pos_0 = rel_to_abs_table[neighbors[i][0]];
-	    int abs_pos_1 = rel_to_abs_table[neighbors[i][1]];
-	    int cy0 = abs_pos_0 / board_width;
-	    int cx0 = abs_pos_0 % board_width;
-	    int cy1 = abs_pos_1 / board_width;
-	    int cx1 = abs_pos_1 % board_width;
-	    
-	    if ((cx0 != cx1) && (cy0 != cy1)){
-		int abs_pos = rel_to_abs_table[i];
-		int cy = abs_pos / board_width;
-		int cx = abs_pos % board_width;
-		    
-		//add this cell to the deadlock list
-		add_to_list(deadlock_list, i);
-	    }
-	}
+		//if it is a goal, it's not a deadlock
+		int p1 = i / int_bits;
+		int p2 = i % int_bits;
+		if (goals[p1] & (1<<p2)) continue;
+		
+		//if 1 neighbors, it's a deadlock
+		if (num_neighbors[i] == 1) add_to_list(deadlock_list, i);
+		
+		//if 2 neigbhors, we have to know more to decide
+		if (num_neighbors[i] == 2){
+			//calculate absolute position of each cells
+			int abs_pos_0 = rel_to_abs_table[neighbors[i][0]];
+			int abs_pos_1 = rel_to_abs_table[neighbors[i][1]];
+			int cy0 = abs_pos_0 / board_width;
+			int cx0 = abs_pos_0 % board_width;
+			int cy1 = abs_pos_1 / board_width;
+			int cx1 = abs_pos_1 % board_width;
+			
+			if ((cx0 != cx1) && (cy0 != cy1)){
+				//add this cell to the deadlock list
+				add_to_list(deadlock_list, i);
+			}
+		}
     }
-
+	
     //test again every cells to determine
     //dead ends beside walls
     for(int i=0; i<num_cell;i++){
-	//if 2 neigbhors, we have to know more to decide
-	if (num_neighbors[i] == 2){
-	    //calculate absolute position of each cells
-	    int abs_pos_0 = rel_to_abs_table[neighbors[i][0]];
-	    int abs_pos_1 = rel_to_abs_table[neighbors[i][1]];
-	    int cy0 = abs_pos_0 / board_width;
-	    int cx0 = abs_pos_0 % board_width;
-	    int cy1 = abs_pos_1 / board_width;
-	    int cx1 = abs_pos_1 % board_width;
-	    
-	    if ((cx0 != cx1) && (cy0 != cy1)){
-		int abs_pos = rel_to_abs_table[i];
-		int cy = abs_pos / board_width;
-		int cx = abs_pos % board_width;
-		
-		//check for the whole line beside the wall
-		direction[0][0] = cx0 - cx;
-		direction[0][1] = cy0 - cy;
-		direction[1][0] = cx1 - cx;
-		direction[1][1] = cy1 - cy;
-
-		//test direction 0
-		init_deadlock_beside_wall(rel_to_abs_table,
-					  abs_to_rel_table,
-					  deadlock_list, goals,
-					  direction, 0, i ,board_width);
-
-		
-		//test direction 1
-		init_deadlock_beside_wall(rel_to_abs_table,
-					  abs_to_rel_table,
-					  deadlock_list, goals,
-					  direction, 1, i ,board_width);
-	    }
-	}
+		//if 2 neigbhors, we have to know more to decide
+		if (num_neighbors[i] == 2){
+			//calculate absolute position of each cells
+			int abs_pos_0 = rel_to_abs_table[neighbors[i][0]];
+			int abs_pos_1 = rel_to_abs_table[neighbors[i][1]];
+			int cy0 = abs_pos_0 / board_width;
+			int cx0 = abs_pos_0 % board_width;
+			int cy1 = abs_pos_1 / board_width;
+			int cx1 = abs_pos_1 % board_width;
+			
+			if ((cx0 != cx1) && (cy0 != cy1)){
+				int abs_pos = rel_to_abs_table[i];
+				int cy = abs_pos / board_width;
+				int cx = abs_pos % board_width;
+				
+				//check for the whole line beside the wall
+				direction[0][0] = cx0 - cx;
+				direction[0][1] = cy0 - cy;
+				direction[1][0] = cx1 - cx;
+				direction[1][1] = cy1 - cy;
+				
+				//test direction 0
+				init_deadlock_beside_wall(rel_to_abs_table,
+										  abs_to_rel_table,
+										  deadlock_list, goals,
+										  direction, 0, i ,board_width);
+				
+				
+				//test direction 1
+				init_deadlock_beside_wall(rel_to_abs_table,
+										  abs_to_rel_table,
+										  deadlock_list, goals,
+										  direction, 1, i ,board_width);
+			}
+		}
     }
 }
 
 
 bool init_deadlock_beside_wall(int *rel_to_abs_table,
-			       int *abs_to_rel_table,
-			       int *deadlock_list, 
-			       int *goals,
-			       int direction[2][2], int dir,
-			       int from_cell, int board_width){
-
-
+							   int *abs_to_rel_table,
+							   int *deadlock_list, 
+							   int *goals,
+							   int direction[2][2], int dir,
+							   int from_cell, int board_width){
+	
+	
     //calculate absolute position of cells
     //previous cell
     int abs_pos = rel_to_abs_table[from_cell];
@@ -314,66 +316,64 @@ bool init_deadlock_beside_wall(int *rel_to_abs_table,
     int p1 = nc / int_bits;
     int p2 = nc % int_bits;
     if (deadlock_list[p1] & (1<<p2)) return true;
-
+	
     //is nc a goal ?
     if (goals[p1] & (1<<p2)) return false;
-
+	
     //is the nc still beside a wall ?
     int wall_dir = (dir == 0 ? 1 : 0);
     int wallx = nx - direction[wall_dir][0];
     int wally = ny - direction[wall_dir][1];
-    int wallc = abs_to_rel_table[wally*board_width + wallx];
-
+	
     if (abs_to_rel_table[wally*board_width + wallx] != -1) return false;
-
+	
     //continue the tests :
     //if the next cell in that direction is a deadlock,
     //then nc is also a deadlock. Then, we add nc return true
     if (init_deadlock_beside_wall(rel_to_abs_table,
-				  abs_to_rel_table,
-				  deadlock_list, goals,
-				  direction, dir, nc, board_width)){
-	add_to_list(deadlock_list, nc);
-	return true;
+								  abs_to_rel_table,
+								  deadlock_list, goals,
+								  direction, dir, nc, board_width)){
+		add_to_list(deadlock_list, nc);
+		return true;
     }else{
-	return false;
+		return false;
     }
 }
 
-void precompute_neighbors(
-                    int board_height, int board_width, int num_cells,
-                    int *abs_to_rel_table, int *rel_to_abs_table,
-                    int (*neighbors)[4], int *&num_neighbors
-                ){
-
+void precompute_neighbors(int board_height, int board_width, int num_cells,
+						  int *abs_to_rel_table, int *rel_to_abs_table,
+						  int (*neighbors)[4], int *&num_neighbors
+						  ){
+	
     //Create the arrays
-
+	
     num_neighbors = new int[num_cells];
     memset(num_neighbors, 0, sizeof(int) * num_cells);
-
+	
     const int move[4][2] = {{1,0},{0,1},{-1,0},{0,-1}};
-
+	
     //For each cell in the relative representation,
     //look for its neighbors in the absolute one
     for(int i=0; i<num_cells; i++){
         int abs_pos = rel_to_abs_table[i];
         int y = abs_pos/board_width;
         int x = abs_pos%board_width;
-
+		
         for(int j=0;j<4;j++){
             int ny = y + move[j][0];
             int nx = x + move[j][1];
-
+			
             if( 0<=ny && ny<board_height &&
-                0<=nx && nx<board_width &&
-                abs_to_rel_table[ny*board_width + nx] != -1
-                ){
+			   0<=nx && nx<board_width &&
+			   abs_to_rel_table[ny*board_width + nx] != -1
+			   ){
                 neighbors[i][ num_neighbors[i]++ ] =
-                    abs_to_rel_table[ny*board_width + nx];
+				abs_to_rel_table[ny*board_width + nx];
             }
         }
     }
-
+	
     //cout << "neighbors" << endl;
     //for(int i=0;i<num_cells;i++){
     //    cout << i << ": " ;
@@ -381,29 +381,54 @@ void precompute_neighbors(
     //        cout << neighbors[i][j] << " ";
     //    cout << endl;
     //}
+	
+}
 
+bool is_deadlock(int *rel_to_abs_table, int *abs_to_rel_table,
+                 int *deadlock_list, int (*neighbors)[4], 
+                 int *&num_neighbors, soko_node *node,
+                 int num_cell){
+    
+    return false;
+    
+    //intersection between deadlock list and box position
+    //if a box is on a deadlock cell, return true
+    int lists_size = num_cell/int_bits;
+    if (num_cell%int_bits != 0) lists_size++;
+    
+    for(int i=0; i<lists_size; i++)
+        if (deadlock_list[i] & node->box_pos[i])
+            return true;
+    
+    return false;
 }
 
 soko_node* breadth_first_search(soko_node *init_node, int board_width,
                                 int* abs_to_rel_table, int *rel_to_abs_table,
+                                int* deadlock_list, int num_cells,
                                 int (*neighbors)[4], int *num_neighbors,
                                 int *goals_pos) {
     soko_node* curr_node;
     vector< soko_node* > *sons;
     queue< soko_node* > fifo;
     fifo.push(init_node);
-
+	
     while(!fifo.empty()){
         curr_node=fifo.front();
         fifo.pop();
         
         sons=curr_node->get_sons(board_width, abs_to_rel_table,
-                                  rel_to_abs_table, neighbors, num_neighbors);
-
+								 rel_to_abs_table, neighbors, num_neighbors);
+		
         for( int i=0; i<sons->size(); i++) {
             if( (*sons)[i]->is_solution(goals_pos) )
                 return (*sons)[i];
+            if (is_deadlock(rel_to_abs_table, abs_to_rel_table, 
+                            deadlock_list, neighbors,
+                            num_neighbors, (*sons)[i], num_cells))
+                continue;
             fifo.push((*sons)[i]);
+            nb_node++;
         }
         delete sons;
     }
@@ -411,16 +436,17 @@ soko_node* breadth_first_search(soko_node *init_node, int board_width,
 }
 
 char* search_path(soko_node *curr_node, int board_size, int board_width,
-                            int *abs_to_rel_table, int *rel_to_abs_table) {
+				  int *abs_to_rel_table, int *rel_to_abs_table) {
     char *path;
     if(curr_node->father==NULL) {
         path=(char*)malloc(64*2048*sizeof(char));
         path[0]='\0';
         return path;
     }
+    
     path=search_path(curr_node->father,board_size,board_width,
-                                abs_to_rel_table,rel_to_abs_table);
-
+					 abs_to_rel_table,rel_to_abs_table);
+	
     //calculates origin and destination positions
     int from=curr_node->father->last_pos;
     int abs_neigh_to=rel_to_abs_table[curr_node->last_pos];
@@ -446,34 +472,34 @@ char* search_path(soko_node *curr_node, int board_size, int board_width,
     int from_2=from%int_bits;
     int to_1=to/int_bits;
     int to_2=to%int_bits;
-
+	
     int lists_size = board_size/int_bits;
     if (board_size%int_bits != 0) lists_size++;
-
+	
     //bitmaps used to create the shortest path
     int *visited = (int*) malloc(lists_size*sizeof(int));
     int *move_u = (int*) malloc(lists_size*sizeof(int));
     int *move_d = (int*) malloc(lists_size*sizeof(int));
     int *move_l = (int*) malloc(lists_size*sizeof(int));
     int *move_r = (int*) malloc(lists_size*sizeof(int));
-
+	
     memset(visited, 0, lists_size*sizeof(int));
     memset(move_u, 0, lists_size*sizeof(int));
     memset(move_d, 0, lists_size*sizeof(int));
     memset(move_l, 0, lists_size*sizeof(int));
     memset(move_r, 0, lists_size*sizeof(int));
     visited[to_1] |= 1<<to_2;
-
+	
     /*cout << "from: " << from << endl;
-    cout << "to: " << to << endl;
-    for(int i=0;i<lists_size;i++) {
-        cout << "visited " << i << ": " << visited[i] << endl;
-        cout << "move_u " << i << ": " << move_u[i] << endl;
-        cout << "move_d " << i << ": " << move_d[i] << endl;
-        cout << "move_l " << i << ": " << move_l[i] << endl;
-        cout << "move_r " << i << ": " << move_r[i] << endl;
-    }*/
-
+	 cout << "to: " << to << endl;
+	 for(int i=0;i<lists_size;i++) {
+	 cout << "visited " << i << ": " << visited[i] << endl;
+	 cout << "move_u " << i << ": " << move_u[i] << endl;
+	 cout << "move_d " << i << ": " << move_d[i] << endl;
+	 cout << "move_l " << i << ": " << move_l[i] << endl;
+	 cout << "move_r " << i << ": " << move_r[i] << endl;
+	 }*/
+	
     int abs_last_pos=rel_to_abs_table[curr_node->last_pos];
     int last_pos_y=abs_last_pos/board_width;
     int last_pos_x=abs_last_pos%board_width;
@@ -494,17 +520,17 @@ char* search_path(soko_node *curr_node, int board_size, int board_width,
     }
     abs_last_pos=last_pos_y*board_width+last_pos_x;
     int rel_ignore_box=abs_to_rel_table[abs_last_pos];
-
+	
     while( ( visited[ from_1 ] & 1<<from_2 ) == 0 ){
         /*for(int i=0;i<lists_size;i++) {
-            cout << "visited " << i << ": " << visited[i] << endl;
-            cout << "move_u " << i << ": " << move_u[i] << endl;
-            cout << "move_d " << i << ": " << move_d[i] << endl;
-            cout << "move_l " << i << ": " << move_l[i] << endl;
-            cout << "move_r " << i << ": " << move_r[i] << endl;
-            cout << "from:" << (visited[ from_1 ] & 1<<from_2) << endl;
-        }*/
-
+		 cout << "visited " << i << ": " << visited[i] << endl;
+		 cout << "move_u " << i << ": " << move_u[i] << endl;
+		 cout << "move_d " << i << ": " << move_d[i] << endl;
+		 cout << "move_l " << i << ": " << move_l[i] << endl;
+		 cout << "move_r " << i << ": " << move_r[i] << endl;
+		 cout << "from:" << (visited[ from_1 ] & 1<<from_2) << endl;
+		 }*/
+		
         for(int p1 = 0; p1 < soko_node::arr_size; p1++){
             for(int p2 = 0; p2 < int_bits; p2++ ){
                 if( visited[p1] & 1<<p2 ) {
@@ -524,10 +550,10 @@ char* search_path(soko_node *curr_node, int board_size, int board_width,
                     int n1=rel_n/int_bits;
                     int n2=rel_n%int_bits;
                     if((visited[n1] & 1<<n2)==0 &&
-            (curr_node->father->area[n1] & ~curr_node->father->box_pos[n1] & 1<<n2)
-                      && rel_n != curr_node->last_pos)
+					   (curr_node->father->area[n1] & ~curr_node->father->box_pos[n1] & 1<<n2)
+					   && rel_n != curr_node->last_pos)
                         move_u[n1]|=1<<n2;
-
+					
                     n_y=p_y-1;
                     n_x=p_x;
                     abs_n=n_y*board_width+n_x;
@@ -535,10 +561,10 @@ char* search_path(soko_node *curr_node, int board_size, int board_width,
                     n1=rel_n/int_bits;
                     n2=rel_n%int_bits;
                     if((visited[n1] & 1<<n2)==0 &&
-            (curr_node->father->area[n1] & ~curr_node->father->box_pos[n1] & 1<<n2)
-                      && rel_n != curr_node->last_pos)
+					   (curr_node->father->area[n1] & ~curr_node->father->box_pos[n1] & 1<<n2)
+					   && rel_n != curr_node->last_pos)
                         move_d[n1]|=1<<n2;
-
+					
                     n_y=p_y;
                     n_x=p_x+1;
                     abs_n=n_y*board_width+n_x;
@@ -546,10 +572,10 @@ char* search_path(soko_node *curr_node, int board_size, int board_width,
                     n1=rel_n/int_bits;
                     n2=rel_n%int_bits;
                     if((visited[n1] & 1<<n2)==0 &&
-            (curr_node->father->area[n1] & ~curr_node->father->box_pos[n1] & 1<<n2)
-                      && rel_n != curr_node->last_pos)
+					   (curr_node->father->area[n1] & ~curr_node->father->box_pos[n1] & 1<<n2)
+					   && rel_n != curr_node->last_pos)
                         move_l[n1]|=1<<n2;
-
+					
                     n_y=p_y;
                     n_x=p_x-1;
                     abs_n=n_y*board_width+n_x;
@@ -557,30 +583,30 @@ char* search_path(soko_node *curr_node, int board_size, int board_width,
                     n1=rel_n/int_bits;
                     n2=rel_n%int_bits;
                     if((visited[n1] & 1<<n2)==0 &&
-            (curr_node->father->area[n1] & ~curr_node->father->box_pos[n1] & 1<<n2)
-                      && rel_n != curr_node->last_pos)
+					   (curr_node->father->area[n1] & ~curr_node->father->box_pos[n1] & 1<<n2)
+					   && rel_n != curr_node->last_pos)
                         move_r[n1]|=1<<n2;
                 }
             }
-        // update visited as bitwise-or of move_u-d-l-r
-        // also, setting of to bit to 1
-        for(int p1=0;p1<soko_node::arr_size;p1++)
-            visited[p1]=move_u[p1]|move_d[p1]|move_l[p1]|move_r[p1];
-        visited[to_1] |= 1<<to_2;
+			// update visited as bitwise-or of move_u-d-l-r
+			// also, setting of to bit to 1
+			for(int p1=0;p1<soko_node::arr_size;p1++)
+				visited[p1]=move_u[p1]|move_d[p1]|move_l[p1]|move_r[p1];
+			visited[to_1] |= 1<<to_2;
         }
     }
     
     /*cout << "path Found!! Startig Recovery:" << endl;
-        for(int i=0;i<lists_size;i++) {
-            cout << "visited " << i << ": " << visited[i] << endl;
-            cout << "move_u " << i << ": " << move_u[i] << endl;
-            cout << "move_d " << i << ": " << move_d[i] << endl;
-            cout << "move_l " << i << ": " << move_l[i] << endl;
-            cout << "move_r " << i << ": " << move_r[i] << endl;
-            cout << "from:" << (visited[ from_1 ] & 1<<from_2) << endl;
-        }*/
-
-// path found, decode string
+	 for(int i=0;i<lists_size;i++) {
+	 cout << "visited " << i << ": " << visited[i] << endl;
+	 cout << "move_u " << i << ": " << move_u[i] << endl;
+	 cout << "move_d " << i << ": " << move_d[i] << endl;
+	 cout << "move_l " << i << ": " << move_l[i] << endl;
+	 cout << "move_r " << i << ": " << move_r[i] << endl;
+	 cout << "from:" << (visited[ from_1 ] & 1<<from_2) << endl;
+	 }*/
+	
+	// path found, decode string
     int l=strlen(path);
     int pos_1=from_1;
     int pos_2=from_2;
@@ -616,12 +642,12 @@ char* search_path(soko_node *curr_node, int board_size, int board_width,
     path[l++]=curr_node->push_dir;
     path[l++]=' ';
     path[l++]='\0';
-
+	
     free(visited);
     free(move_u);
     free(move_d);
     free(move_l);
     free(move_r);
-
+	
     return path;
 }
