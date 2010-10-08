@@ -389,8 +389,6 @@ bool is_deadlock(int *rel_to_abs_table, int *abs_to_rel_table,
                  int *&num_neighbors, soko_node *node,
                  int num_cell){
     
-    return false;
-    
     //intersection between deadlock list and box position
     //if a box is on a deadlock cell, return true
     int lists_size = num_cell/int_bits;
