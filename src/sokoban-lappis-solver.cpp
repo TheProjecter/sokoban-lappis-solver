@@ -63,7 +63,7 @@ char* solve_sokoban(char *buffer, int buf_size){
 												  abs_to_rel_table, rel_to_abs_table,
                                                   neighbors, num_neighbors);
     
-    soko_node* sol_node = breadth_first_search(init_node,board_width,
+    soko_node* sol_node = breadth_first_search(init_node,board_height,board_width,
 											   abs_to_rel_table,
 											   rel_to_abs_table,
                                                deadlock_list,
@@ -259,7 +259,8 @@ void precompute_neighbors(int board_height, int board_width, int num_cells,
 	
 }
 
-soko_node* breadth_first_search(soko_node *init_node, int board_width,
+soko_node* breadth_first_search(soko_node *init_node, int board_height,
+								int board_width,
                                 int* abs_to_rel_table, int *rel_to_abs_table,
                                 int* deadlock_list, int num_cells,
                                 int (*neighbors)[4], int *num_neighbors,
@@ -272,7 +273,7 @@ soko_node* breadth_first_search(soko_node *init_node, int board_width,
     while(!fifo.empty()){
         curr_node=fifo.front();
         fifo.pop();
-        
+    cout << "nb node : " << nb_node <<endl;
         sons=curr_node->get_sons(board_width, abs_to_rel_table,
 								 rel_to_abs_table, neighbors, num_neighbors);
 		
@@ -281,7 +282,8 @@ soko_node* breadth_first_search(soko_node *init_node, int board_width,
                 return (*sons)[i];
             if (is_deadlock(rel_to_abs_table, abs_to_rel_table, 
                             deadlock_list, neighbors,
-                            num_neighbors, (*sons)[i], num_cells))
+                            num_neighbors, (*sons)[i], num_cells,
+							board_height, board_width, goals_pos))
                 continue;
             fifo.push((*sons)[i]);
             nb_node++;
