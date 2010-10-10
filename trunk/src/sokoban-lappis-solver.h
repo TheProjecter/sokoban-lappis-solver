@@ -169,6 +169,8 @@ void precompute_neighbors(
  *
  * @param init_node         Starting node of the Sokoban problem
  *
+ * @param board_height      The height of the board.
+ *
  * @param board_width       The width of the board.
  *
  * @param abs_to_rel_table  Transformation table from absolute
@@ -193,7 +195,8 @@ void precompute_neighbors(
  *
  * @return                  A soko_node in which all boxes are in the goals
  */
-soko_node* breadth_first_search(soko_node *init_node, int board_width,
+soko_node* breadth_first_search(soko_node *init_node, int board_height,
+								int board_width,
                                 int* abs_to_rel_table, int *rel_to_abs_table,
                                 int* deadlock_list, int num_cells,
                                 int (*neighbors)[4], int *num_neighbors,
