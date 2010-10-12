@@ -24,6 +24,7 @@
 #include"soko_node.h"
 #include "deadlock_check.h"
 #include "soko_algorithm.h"
+#include "soko_heuristic.h"
 
 #define SPACECHAR ' '
 #define WALLCHAR '#'
@@ -96,15 +97,32 @@ int read_board(char *buffer, int buf_size,
  *                          node with the player position
  *                          and the boxes' initial positions.
  *
+ * @param num_boxes         This integer will have the number of
+ *                          boxes in the board
+ *
+ * @param num_goals         This integer will have the number of
+ *                          goals in the board
+ *
+ * @param goals_rel_pos     This pointer will hold an array with
+ *                          the relative positions of the goals
+ *
  * @return                  The funtion returns the number of
  *                          cells in the relative representation
  *                          of the game.
  */
 int precompute_board(
+<<<<<<< .mine
+					 int board_width,  vector< string > &board,
+					 int *&abs_to_rel_table, int *&rel_to_abs_table,
+					 int *&goals_pos, soko_node *&init_node,
+                     int &num_boxes, int &num_goals, int *&goals_rel_pos
+					 );
+=======
                      int board_width,  vector< string > &board,
                      int *&abs_to_rel_table, int *&rel_to_abs_table,
                      int *&goals_pos, soko_node *&init_node
                      );
+>>>>>>> .r42
 
 /* flood the board to find which cells are inside
  * @param board             The board of the game (as a vector of
@@ -133,12 +151,18 @@ int precompute_board(
  *
  * @param y                 (x, y) position of the guy
  *
- * @param c                 index of the cell
+ * @param c                 Index of the cell, it will increment
+ *                          periodically
+ *
+ * @param num_boxes         Count for number of boxes
+ *
+ * @param num_boxes         Count for number of goals
  *
  */
 void dfs(vector< string > &board, int *abs_to_rel_table,
-         int *rel_to_abs_table, int *goals_pos, int *box_pos,
-         const int moves[4][2], int, int, int, int &c);
+		 int *rel_to_abs_table, int *goals_pos, int *box_pos,
+		 const int moves[4][2], int, int, int, int &c,
+         int &num_boxes, int &num_goals);
 
 
 void add_to_list(int* list, int index);

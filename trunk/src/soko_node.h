@@ -17,6 +17,7 @@
 #include<iostream>
 #include<vector>
 #include<string.h>
+#include"soko_heuristic.h"
 
 using namespace std;
 
@@ -85,11 +86,14 @@ class soko_node{
      *
      * @param father    A pointer to the father of the
      *                  node, NULL if is a root node
+     *
+     * @param depth     The depth of the node
      */
-    soko_node(int last_pos, char push_dir, soko_node *father);
+    soko_node(int last_pos, char push_dir, soko_node *father,
+                int depth);
 
     //Empty constructor
-    soko_node(){ this->father=NULL; }
+    soko_node();
 
     /**
      * Print the board using the next code:
@@ -162,20 +166,20 @@ class soko_node{
     bool is_solution(int *goals_pos);
 
     /**
-     * Comparison function between nodes, used for informed search
-     * algorithms
+     * Calculates the heuristic of this node.
      *
+     * @param num_boxes         The number of boxes on the board
+     *
+     * @param num_goals         The number of goals on the board
+     *
+     * @param goals_rel_pos     The relative position of each goal
+     *
+     * @param min_dist_matrix   A "num_cells x num_cells" matrix, represented
+     *                          as an array, where the position [i][j] contains
+     *                          the min distance between the cells i and j
      */
-    bool operator<(const soko_node& sn) const{
-        int my_f = this->depth + this->heur;
-        int other_f = sn.depth + sn.heur;
-
-        if(my_f == other_f)
-            //Give priority to small heuristics
-            return this->heur < sn.heur;
-
-        return my_f < other_f;
-    }
+    void calc_heur( int num_boxes, int num_goals, int *goals_rel_pos,
+                int *min_dist_matrix, int *box_goal_distance );
 
   private:
     /**
@@ -200,8 +204,16 @@ class soko_node{
      */
     inline static int find_oposite(int board_width, int* abs_to_rel_table,
                      int *rel_to_abs_table, int box, int neigh);
+
 };
 
+/**
+ * Class for making comparissons of two pointers of soko_nodes
+ */
+class soko_comp{
+  public:
+    bool operator()(const soko_node *a, const soko_node *b)const;
+};
 
 
 #endif
