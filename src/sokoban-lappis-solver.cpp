@@ -31,11 +31,14 @@ char* solve_sokoban(char *buffer, int buf_size){
     //tables
     int *abs_to_rel_table, *rel_to_abs_table, *goals_pos;
     soko_node *init_node;
-    
+    int num_boxes, num_goals;
+    int *goals_rel_pos;
+	
     int num_cells = precompute_board(board_width, board, abs_to_rel_table,
-                                     rel_to_abs_table, goals_pos,
-                                     init_node);
-    
+									 rel_to_abs_table, goals_pos,
+									 init_node, num_boxes, num_goals,
+                                     goals_rel_pos);
+	
     //Save the number of cells for every node
     //and the number of ints needed for each bitmap
     soko_node::num_cells = num_cells;
@@ -71,32 +74,29 @@ char* solve_sokoban(char *buffer, int buf_size){
     init_node->compute_area(   neighbors,
                             num_neighbors );
 
-    vector< soko_node* > *v = init_node->get_sons(board_width,
-                                                  abs_to_rel_table, rel_to_abs_table,
-                                                  neighbors, num_neighbors);
+    //Find a solution 
+    //soko_node* sol_node = breadth_first_search(init_node,board_height,board_width,
+	//										   abs_to_rel_table,
+	//										   rel_to_abs_table,
+    //                                           deadlock_list,
+    //                                           num_cells,
+    //                                           neighbors,
+	//										   num_neighbors,goals_pos);
     
-    soko_node* sol_node = breadth_first_search(init_node,board_height,board_width,
+    soko_node* sol_node = a_star_search(init_node,board_height,board_width,
                                                abs_to_rel_table,
                                                rel_to_abs_table,
                                                deadlock_list,
                                                num_cells,
                                                neighbors,
-                                               num_neighbors,goals_pos);
-    
-    
-    //soko_node* curr_node;
-    //for(curr_node=sol_node;curr_node!=NULL;curr_node = curr_node->father)
-    //    curr_node->print(board_height,board_width, abs_to_rel_table);
-    
+											   num_neighbors,goals_pos,
+                                               goals_rel_pos, num_boxes,
+                                               num_goals);
+    //Search a path for the solution	
     char *solo=search_path(sol_node,board.size()*board_width,board_width,
                            abs_to_rel_table,rel_to_abs_table);
       
-    
-    /*
-     char *solo = new char[6];
-     solo[0]='U';
-     solo[1]='\0';
-     */
+     
     return solo;
 }
 
@@ -121,9 +121,10 @@ int read_board( char* buffer, int buf_size, vector< string > &board ){
 
 
 int precompute_board(int board_width, vector< string > &board,
-                     int *&abs_to_rel_table, int *&rel_to_abs_table,
-                     int *&goals_pos, soko_node *&init_node ) {
-    
+					 int *&abs_to_rel_table, int *&rel_to_abs_table,
+					 int *&goals_pos, soko_node *&init_node,
+                     int &num_boxes, int &num_goals, int *&goals_rel_pos) {
+	
     int board_size = board.size() * board_width;
     int lists_size = board_size/int_bits;
     if (board_size%int_bits != 0) lists_size++;
@@ -157,25 +158,63 @@ int precompute_board(int board_width, vector< string > &board,
     memset(rel_to_abs_table, 0, board_size*sizeof(int));
     memset(goals_pos, 0, lists_size*sizeof(int));
     memset(init_node->box_pos, 0, lists_size*sizeof(int));
-    
+    num_boxes = num_goals = 0;
+
     //use DFS to fill in the board
     dfs(board, abs_to_rel_table,
-        rel_to_abs_table, goals_pos, init_node->box_pos,
-        moves, board_width, guy_x, guy_y, num_cell);
-    
-    //For the initial state, the relative cell number 0
-    //and dir_push is '\0' character
-    //is the first valid position (it's always where the player starts)
-    init_node->last_pos = 0;
-    init_node->push_dir = '\0';
+		rel_to_abs_table, goals_pos, init_node->box_pos,
+		moves, board_width, guy_x, guy_y, num_cell, num_boxes, num_goals);
+	
+
+    //Now calculate all the relative positions of goals
+    goals_rel_pos = new int[num_goals];
+    int ii = 0;
+
+    lists_size = num_cell/int_bits;
+    if( num_cell%int_bits != 0) lists_size++;
+
+    for(int j=0; j<lists_size; j++){
+
+        int mask = 1;
+        for(int k = 0; k < int_bits ; k++){
+
+            if( goals_pos[j]&mask )
+                goals_rel_pos[ii++] = j*int_bits + k;
+            mask <<= 1;
+        }
+    }
+
+    //Check results
+    //cout << "boxes: " << num_boxes << endl
+    //    << "goals: " << num_goals << endl
+    //    << "possitions of goals: ";
+
+    //for(int j=0;j<num_goals;j++)
+    //    cout << goals_rel_pos[j] << " ";
+    //cout << endl;
+
+    //cout << ".................." << endl;
+    //for(int i=0; i<board.size() ; i++){
+    //    for(int j=0;j<board_width;j++){
+    //        int relv = abs_to_rel_table[i*board_width+j];
+    //        if(relv !=-1)
+    //            cout << (relv<10?" ":"") << relv << " ";
+    //        else
+    //            cout << "## ";
+    //    }
+    //    cout << endl;
+    //}
+
+    //cout << ".................." << endl;
 
     return num_cell;
 }
 
 void dfs(vector< string > &board, int *abs_to_rel_table, 
-         int *rel_to_abs_table, int *goals_pos, int *box_pos,
-         const int moves[4][2], int board_width, int x, int y, int &c){   
-    
+		 int *rel_to_abs_table, int *goals_pos, int *box_pos,
+		 const int moves[4][2], int board_width, int x, int y, int &c,
+         int &num_boxes, int &num_goals){   
+	
     int nx, ny;
     
     //already visited cell
@@ -187,16 +226,21 @@ void dfs(vector< string > &board, int *abs_to_rel_table,
             return;
         case GUYGOALCHAR:
             add_to_list(goals_pos, c);
+            num_goals++;
             break;
         case GOALCHAR:
             add_to_list(goals_pos, c);
+            num_goals++;
             break;
         case BOXGOALCHAR:
             add_to_list(goals_pos, c);
             add_to_list(box_pos, c);
+            num_goals++;
+            num_boxes++;
             break;
         case BOXCHAR:
             add_to_list(box_pos, c);
+            num_boxes++;
             break;
     }
     
@@ -213,7 +257,7 @@ void dfs(vector< string > &board, int *abs_to_rel_table,
             
             dfs(board, abs_to_rel_table,
                 rel_to_abs_table, goals_pos, box_pos,
-                moves, board_width, nx, ny, c);
+                moves, board_width, nx, ny, c, num_boxes, num_goals);
     }
 }
 
@@ -256,14 +300,6 @@ void precompute_neighbors(int board_height, int board_width, int num_cells,
             }
         }
     }
-    
-    //cout << "neighbors" << endl;
-    //for(int i=0;i<num_cells;i++){
-    //    cout << i << ": " ;
-    //    for(int j=0;j<num_neighbors[i];j++)
-    //        cout << neighbors[i][j] << " ";
-    //    cout << endl;
-    //}
     
 }
 

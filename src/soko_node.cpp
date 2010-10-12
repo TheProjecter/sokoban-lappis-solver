@@ -25,10 +25,23 @@ int *soko_node::stack_arr;
 int soko_node::num_cells;
 int soko_node::arr_size;
 
-soko_node :: soko_node(int last_pos, char push_dir, soko_node *father){
+soko_node :: soko_node(int last_pos, char push_dir, soko_node *father,
+                        int depth){
     this->last_pos = last_pos;
     this->push_dir = push_dir;
     this->father = father;
+    this->depth = depth;
+}
+
+
+soko_node :: soko_node(){
+    //For the initial state, the relative cell number 0
+    //is the first valid position (it's always where the player starts)
+    //The dir_push is '\0' character.
+    this->last_pos = 0;
+    this->push_dir='\0';
+    this->father=NULL;
+    this->depth=0;
 }
 
 void soko_node :: print( int board_height, int board_width,
@@ -58,6 +71,8 @@ void soko_node :: print( int board_height, int board_width,
         }
         cout << endl;
     }
+    cout << "Depth: " << this->depth << ", Heur: " <<
+        this->heur << endl << endl;
 }
 
 
@@ -178,7 +193,8 @@ vector< soko_node* > *soko_node::get_sons(
                     push_dir='L';
                 
                 //Make your new son!
-                soko_node *son = new soko_node(box_cell,push_dir,this);
+                soko_node *son = new soko_node(box_cell, push_dir,
+                                              this, this->depth + 1);
 
                 //Recalculate the positions of the boxes
                 son->box_pos = new int[soko_node::arr_size];
@@ -231,4 +247,81 @@ bool soko_node::is_solution(int *goals_pos){
             return false;
     }
     return true;
+}
+
+
+
+void soko_node::calc_heur( int num_boxes, int num_goals, int *goals_rel_pos,
+                            int *min_dist_matrix, int *box_goal_distance ){
+
+    //First fill the box_goal_distance matrix with the specific values.
+    //It's needed to find the boxes first
+    int boxes_found = 0;
+
+    for(int p1 = 0; p1 < soko_node::arr_size; p1++){
+        int mask = 1;
+        for(int p2 = 0; p2 < int_bits; ++p2 ){
+            
+            if(!( this->box_pos[p1] & mask )){
+                mask <<= 1;
+                continue;
+            }
+
+            //A box was found! calc the min dist to
+            //the other goals!
+            int box_rel = p1*soko_node::arr_size + p2;
+
+            for(int i=0; i<num_goals ; i++){
+
+                int indx_1 = boxes_found*num_goals + i;
+                int indx_2 = box_rel*soko_node::num_cells +
+                                goals_rel_pos[i];
+
+                box_goal_distance[ indx_1 ] =
+                            min_dist_matrix[ indx_2 ];
+
+            }
+
+            if(++boxes_found == num_boxes){
+                p1 = soko_node :: arr_size;
+                p2 = int_bits;
+                break;
+            }
+            mask <<= 1;
+        }
+
+    }
+
+    //cout << "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" << endl;
+    //for(int i=0; i<num_boxes; i++){
+    //    for(int j=0; j<num_goals ; j++)
+    //        cout << box_goal_distance[ i*num_goals + j ] << " ";
+    //    cout << endl;
+    //}
+    //cout << "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" << endl;
+
+    //Now just call the heuristic function
+    this->heur = nearest_goal(num_boxes, num_goals, box_goal_distance);  
+
+}
+
+
+//...............
+
+
+bool soko_comp::operator()(const soko_node *a, const soko_node *b)const{
+    int a_g = a->depth;
+    int b_g = b->depth;
+
+    int a_h = a->heur;
+    int b_h = b->heur;
+
+    int a_f = a_g + a_h;
+    int b_f = b_g + b_h;
+
+    //Give priprity to the smallest heuristic
+    if(a_f == b_f)
+        return a_h > b_h;
+
+    return a_f > b_f;
 }
