@@ -45,9 +45,9 @@
  */
 
 void init_deadlock_list(int *rel_to_abs_table, int *abs_to_rel_table,
-						int *deadlock_list, int (*neighbors)[4], 
-						int *&num_neighbors, int *goals,
-						int num_cell, int board_width);
+                        int *deadlock_list, int (*neighbors)[4], 
+                        int *&num_neighbors, int *goals,
+                        int num_cell, int board_width);
 
 /* Function used by the deadlock search at the beginning.
  * Some cells are against walls and so can be deadlocks.
@@ -70,11 +70,11 @@ void init_deadlock_list(int *rel_to_abs_table, int *abs_to_rel_table,
  *
  */
 bool init_deadlock_beside_wall(int *rel_to_abs_table,
-							   int *abs_to_rel_table,
-							   int *deadlock_list, 
-							   int *goals,
-							   int direction[2][2], int dir,
-							   int from_cell, int board_width);
+                               int *abs_to_rel_table,
+                               int *deadlock_list, 
+                               int *goals,
+                               int direction[2][2], int dir,
+                               int from_cell, int board_width);
 
 
 /* Function that evaluate if a node is a deadlock or if we
@@ -94,23 +94,23 @@ bool init_deadlock_beside_wall(int *rel_to_abs_table,
  *
  * @param num_cell          How many cell on the board ?
  *
- * @param board_height		Height of the board
+ * @param board_height        Height of the board
  *
- * @param board_width		Width of the board
+ * @param board_width        Width of the board
  *
- * @param goals_pos			Positions of the goals
+ * @param goals_pos            Positions of the goals
  *
  */
 bool is_deadlock(int *rel_to_abs_table, int *abs_to_rel_table,
                  int *deadlock_list, int (*neighbors)[4], 
                  int *&num_neighbors, soko_node *node,
                  int num_cell, int board_height, int board_width,
-					int *goals_pos);
+                    int *goals_pos);
 
 /* Function that evaluates if a node is in a freeze type deadlock
  * situation.
  * 
- * @param node				Pointer to the node
+ * @param node                Pointer to the node
  * 
  * @param num_neighbors     Help defining the neighbors
  *
@@ -120,13 +120,13 @@ bool is_deadlock(int *rel_to_abs_table, int *abs_to_rel_table,
  *
  * @param num_cell          How many cell on the board ?
  *
- * @param board_width		Width of the board
+ * @param board_width        Width of the board
  *
- * @param goals_pos			Positions of the goals
+ * @param goals_pos            Positions of the goals
  *
  */
 bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
-						int *rel_to_abs_table, int *abs_to_rel_table,
-						int num_cell, int board_width, int *goals_pos);
+                        int *rel_to_abs_table, int *abs_to_rel_table,
+                        int num_cell, int board_width, int *goals_pos);
 
 #endif
