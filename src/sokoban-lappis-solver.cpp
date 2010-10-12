@@ -1,3 +1,16 @@
+/**
+ * KTH - Royal Institute of Technology
+ * DD2380 - Artificial Intelligence
+ * Autumn 2010
+ *
+ * Simple sokoban solver
+ *
+ * @author  Kevin Anceau <anceau@kth.se>
+ * @author  Andrea Baisero <baisero@kth.se>
+ * @author  Carlos Alberto Colmenares <cacol@kth.se>
+ * @author  Manuel Parras Ruiz De Azea <mprda@kth.se>
+ *
+ */
 #include"sokoban-lappis-solver.h"
 
 /**
@@ -6,7 +19,6 @@
  * where this code is runned
  */
 int int_bits = sizeof(int)*8;
-int nb_node = 0;
 
 char* solve_sokoban(char *buffer, int buf_size){
 	
@@ -79,8 +91,6 @@ char* solve_sokoban(char *buffer, int buf_size){
     char *solo=search_path(sol_node,board.size()*board_width,board_width,
 						   abs_to_rel_table,rel_to_abs_table);
       
-    
-    cout << "nb node: " << nb_node <<endl;
     
     /*
 	 char *solo = new char[6];
@@ -257,39 +267,6 @@ void precompute_neighbors(int board_height, int board_width, int num_cells,
 	
 }
 
-soko_node* breadth_first_search(soko_node *init_node, int board_height,
-								int board_width,
-                                int* abs_to_rel_table, int *rel_to_abs_table,
-                                int* deadlock_list, int num_cells,
-                                int (*neighbors)[4], int *num_neighbors,
-                                int *goals_pos) {
-    soko_node* curr_node;
-    vector< soko_node* > *sons;
-    queue< soko_node* > fifo;
-    fifo.push(init_node);
-	
-    while(!fifo.empty()){
-        curr_node=fifo.front();
-        fifo.pop();
-    	//cout << "nb node: " << nb_node <<endl;
-        sons=curr_node->get_sons(board_width, abs_to_rel_table,
-								 rel_to_abs_table, neighbors, num_neighbors);
-		
-        for( int i=0; i<sons->size(); i++) {
-            if( (*sons)[i]->is_solution(goals_pos))
-                return (*sons)[i];
-            if (is_deadlock(rel_to_abs_table, abs_to_rel_table, 
-                            deadlock_list, neighbors,
-                            num_neighbors, (*sons)[i], num_cells,
-							board_height, board_width, goals_pos))
-                continue;
-            fifo.push((*sons)[i]);
-            nb_node++;
-        }
-        delete sons;
-    }
-    return NULL;
-}
 
 char* search_path(soko_node *curr_node, int board_size, int board_width,
 				  int *abs_to_rel_table, int *rel_to_abs_table) {
