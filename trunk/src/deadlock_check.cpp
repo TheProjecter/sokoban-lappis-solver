@@ -68,6 +68,9 @@ void init_deadlock_list(int *rel_to_abs_table, int *abs_to_rel_table,
 				int cy = abs_pos / board_width;
 				int cx = abs_pos % board_width;
 				
+                //if it is a goal, no need to test walls from here
+                if (goals[i / int_bits] & (1<<(i % int_bits))) continue;
+                
 				//check for the whole line beside the wall
 				direction[0][0] = cx0 - cx;
 				direction[0][1] = cy0 - cy;

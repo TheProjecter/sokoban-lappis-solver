@@ -60,8 +60,8 @@ char* solve_sokoban(char *buffer, int buf_size){
     deadlock_list = (int*) malloc(sizeof(int) * num_cells);
     init_deadlock_list(rel_to_abs_table, abs_to_rel_table,
 					   deadlock_list, neighbors, 
-					   num_neighbors, goals_pos, num_cells, board_width);
-	
+					   num_neighbors, goals_pos, num_cells, board_width);  
+    
 	
     //Make the auxiliary stack and compute the initial area
     int *stack_arr = new int[num_cells];
