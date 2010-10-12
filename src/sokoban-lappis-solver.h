@@ -64,7 +64,7 @@ char* solve_sokoban(char *buffer, int buf_size);
  * @return          The width of the board
  */
 int read_board(char *buffer, int buf_size,
-			   vector< string > &board );
+               vector< string > &board );
 
 /**
  * Make all the necessary precomputations to begin the
@@ -101,10 +101,10 @@ int read_board(char *buffer, int buf_size,
  *                          of the game.
  */
 int precompute_board(
-					 int board_width,  vector< string > &board,
-					 int *&abs_to_rel_table, int *&rel_to_abs_table,
-					 int *&goals_pos, soko_node *&init_node
-					 );
+                     int board_width,  vector< string > &board,
+                     int *&abs_to_rel_table, int *&rel_to_abs_table,
+                     int *&goals_pos, soko_node *&init_node
+                     );
 
 /* flood the board to find which cells are inside
  * @param board             The board of the game (as a vector of
@@ -137,8 +137,8 @@ int precompute_board(
  *
  */
 void dfs(vector< string > &board, int *abs_to_rel_table,
-		 int *rel_to_abs_table, int *goals_pos, int *box_pos,
-		 const int moves[4][2], int, int, int, int &c);
+         int *rel_to_abs_table, int *goals_pos, int *box_pos,
+         const int moves[4][2], int, int, int, int &c);
 
 
 void add_to_list(int* list, int index);
@@ -172,10 +172,10 @@ void add_to_list(int* list, int index);
  *                          board.
  */
 void precompute_neighbors(
-						  int board_height, int board_width, int num_cells,
-						  int *abs_to_rel_table, int *rel_to_abs_table,
-						  int (*neighbors)[4], int *&num_neighbors
-						  );
+                          int board_height, int board_width, int num_cells,
+                          int *abs_to_rel_table, int *rel_to_abs_table,
+                          int (*neighbors)[4], int *&num_neighbors
+                          );
 
 
 /**
@@ -199,6 +199,6 @@ void precompute_neighbors(
  *                          coded as 'U' 'D' 'L' and 'R'
  */
 char* search_path(soko_node *curr_node, int board_size, int board_width,
-				  int *abs_to_rel_table, int *rel_to_abs_table);
+                  int *abs_to_rel_table, int *rel_to_abs_table);
 
 #endif

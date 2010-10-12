@@ -15,7 +15,7 @@
 
 
 soko_node* breadth_first_search(soko_node *init_node, int board_height,
-								int board_width,
+                                int board_width,
                                 int* abs_to_rel_table, int *rel_to_abs_table,
                                 int* deadlock_list, int num_cells,
                                 int (*neighbors)[4], int *num_neighbors,
@@ -37,8 +37,8 @@ soko_node* breadth_first_search(soko_node *init_node, int board_height,
         fifo.pop();
 
         sons=curr_node->get_sons(board_width, abs_to_rel_table,
-								 rel_to_abs_table, neighbors, num_neighbors);
-		generated_nodes += sons->size();
+                                 rel_to_abs_table, neighbors, num_neighbors);
+        generated_nodes += sons->size();
 
         for( int i=0; i<sons->size(); i++) {
             bool qwe = *curr_node < *((*sons)[i]);
@@ -49,7 +49,7 @@ soko_node* breadth_first_search(soko_node *init_node, int board_height,
             if (is_deadlock(rel_to_abs_table, abs_to_rel_table, 
                             deadlock_list, neighbors,
                             num_neighbors, (*sons)[i], num_cells,
-							board_height, board_width, goals_pos))
+                            board_height, board_width, goals_pos))
                 continue;
             queued_nodes++;
             fifo.push((*sons)[i]);
