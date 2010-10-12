@@ -111,18 +111,11 @@ int read_board(char *buffer, int buf_size,
  *                          of the game.
  */
 int precompute_board(
-<<<<<<< .mine
 					 int board_width,  vector< string > &board,
 					 int *&abs_to_rel_table, int *&rel_to_abs_table,
 					 int *&goals_pos, soko_node *&init_node,
                      int &num_boxes, int &num_goals, int *&goals_rel_pos
 					 );
-=======
-                     int board_width,  vector< string > &board,
-                     int *&abs_to_rel_table, int *&rel_to_abs_table,
-                     int *&goals_pos, soko_node *&init_node
-                     );
->>>>>>> .r42
 
 /* flood the board to find which cells are inside
  * @param board             The board of the game (as a vector of
