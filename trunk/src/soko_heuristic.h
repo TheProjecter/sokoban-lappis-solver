@@ -11,25 +11,11 @@
  * @author  Manuel Parras Ruiz De Azea <mprda@kth.se>
  *
  */
-#ifndef _SLS_CLIENT_H
-#define _SLS_CLIENT_H
-
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h> 
-#include <iostream>
-#include <cstdlib>
-#include "sokoban-lappis-solver.h"
-
-#define PORT 5555
-#define BUFFERSIZE 1024
+#ifndef _SOKO_HEURISTIC_H_
+#define _SOKO_HEURISTIC_H_
 
 using namespace std;
 
+
 #endif
+

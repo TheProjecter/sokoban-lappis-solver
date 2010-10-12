@@ -1,3 +1,16 @@
+/**
+ * KTH - Royal Institute of Technology
+ * DD2380 - Artificial Intelligence
+ * Autumn 2010
+ *
+ * Simple sokoban solver
+ *
+ * @author  Kevin Anceau <anceau@kth.se>
+ * @author  Andrea Baisero <baisero@kth.se>
+ * @author  Carlos Alberto Colmenares <cacol@kth.se>
+ * @author  Manuel Parras Ruiz De Azea <mprda@kth.se>
+ *
+ */
 #ifndef _SLS_SOKO_NODE_H
 #define _SLS_SOKO_NODE_H
 
@@ -36,6 +49,16 @@ class soko_node{
      * 'U' 'D' 'L' 'R'
      */
     char push_dir;
+    /**
+     * The number of pushes made in the search path
+     * before arriving to this node. (The depth of
+     * the node in the tree)
+     */
+    int depth;
+    /**
+     * The heuristic value of the node
+     */
+    int heur;
     /**
      * The number of cells in the relative
      * representation of the board
@@ -127,15 +150,32 @@ class soko_node{
                                 int (*neighbors)[4], int *num_neighbors);
 
     /**
-     * Determines if the soko_node calling this method is a terminal node or not.
+     * Determines if the soko_node calling this method is a terminal
+     * node or not.
      * It does so by checking that there are no boxes in non-goal cells.
      * Implementation allows for boards with more goal-cells than box-cells.
      *
-     * @param goals_pos         The positions of goal cells
+     * @param goals_pos     The positions of goal cells
      * 
-     * @return                  True if node is a terminal node. False otherwise
+     * @return              True if node is a terminal node. False otherwise
      */
     bool is_solution(int *goals_pos);
+
+    /**
+     * Comparison function between nodes, used for informed search
+     * algorithms
+     *
+     */
+    bool operator<(const soko_node& sn) const{
+        int my_f = this->depth + this->heur;
+        int other_f = sn.depth + sn.heur;
+
+        if(my_f == other_f)
+            //Give priority to small heuristics
+            return this->heur < sn.heur;
+
+        return my_f < other_f;
+    }
 
   private:
     /**
