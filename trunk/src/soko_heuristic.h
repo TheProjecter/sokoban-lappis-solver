@@ -16,6 +16,7 @@
 
 #include<iostream>
 #include<string.h>
+#include"hungarian.h"
 using namespace std;
 
 //This file is splitted in two parts:
@@ -71,6 +72,10 @@ int* manhattan_dist( int num_cells,
  */
 int nearest_goal( int num_boxes, int num_goals,
                     int *box_goal_distance);
+
+int hungarian( int num_boxes, int num_goals,
+                    int *box_goal_distance);
+
 
 //............................................................................
 //                          Others (auxiliary functions)

@@ -17,6 +17,7 @@
 #include<queue>
 #include"soko_node.h"
 #include"deadlock_check.h"
+#include"mfmc.h"
 using namespace std;
 
 /**

@@ -17,7 +17,9 @@ SOURCES=\
 	client.cpp \
 	deadlock_check.cpp \
 	soko_algorithm.cpp \
-	soko_heuristic.cpp
+	soko_heuristic.cpp \
+	mfmc.cpp \
+	hungarian.c
 
 default:
 	g++ $(SOURCES) -o sokoban-lappis-solver
