@@ -16,8 +16,16 @@
 
 #include<iostream>
 #include<string.h>
+#include<queue>
+#include<vector>
 #include"hungarian.h"
+
+//Maximum number of cells
+#define INF 5000
+
 using namespace std;
+
+
 
 //This file is splitted in two parts:
 // 1.- Calc of min distances
@@ -49,6 +57,11 @@ int* manhattan_dist( int num_cells,
                      int board_width 
                      );
 
+int*   simple_bfs( int num_cells,
+                      int *rel_to_abs_table,
+                      int *abs_to_rel_table,
+                      int board_width
+        );
 //............................................................................
 //                            Calc of heuristic
 //............................................................................

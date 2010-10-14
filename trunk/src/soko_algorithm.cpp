@@ -76,8 +76,20 @@ soko_node* a_star_search(soko_node *init_node, int board_height,
     //Precompute the min_dist_matrix to make possible the
     //calculations of heuristics and build the box_goal_distance
     //matrix to make it available for further use
-    int *min_dist_matrix = manhattan_dist(num_cells, rel_to_abs_table,board_width); 
+    int *min_dist_matrix = simple_bfs(num_cells, rel_to_abs_table,
+                                        abs_to_rel_table, board_width); 
     int *box_goal_distance = new int[ num_boxes*num_goals ];
+
+    //cout << endl << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>" << endl;
+    //for(int i=0; i<num_cells;i++){
+    //    for(int j=0; j<num_cells; j++){
+    //        int min_dist = min_dist_matrix[i*num_cells+j];
+    //        printf("%5d ",min_dist);
+
+    //    }
+    //    cout << endl;
+    //}
+    //cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>" << endl;
 
     //The node that will have the solution and an iterator
     soko_node* sol_node = NULL;
@@ -96,7 +108,7 @@ soko_node* a_star_search(soko_node *init_node, int board_height,
     init_node->calc_heur( num_boxes, num_goals, goals_rel_pos, 
                         min_dist_matrix, box_goal_distance );
 
-    //init_node->print( board_height, board_width, abs_to_rel_table );
+    init_node->print( board_height, board_width, abs_to_rel_table );
 
     //Push the first node and begin algorithm
     p_queue.push(init_node);
@@ -112,9 +124,9 @@ soko_node* a_star_search(soko_node *init_node, int board_height,
 		generated_nodes += sons->size();
 
         //cout << generated_nodes << endl;
-        if(expanded_nodes%1000 == 0){
+        if(expanded_nodes%10000 == 0){
             curr_node->print( board_height, board_width, abs_to_rel_table );
-            cout << expanded_nodes << endl;
+            cout << "Exp nodes: " << expanded_nodes << endl;
         }
 
         for( int i=0; i<sons->size(); i++) {
