@@ -111,6 +111,12 @@ soko_node* a_star_search(soko_node *init_node, int board_height,
 								 rel_to_abs_table, neighbors, num_neighbors);
 		generated_nodes += sons->size();
 
+        //cout << generated_nodes << endl;
+        if(expanded_nodes%1000 == 0){
+            curr_node->print( board_height, board_width, abs_to_rel_table );
+            cout << expanded_nodes << endl;
+        }
+
         for( int i=0; i<sons->size(); i++) {
 
             soko_node *my_son = (*sons)[i];

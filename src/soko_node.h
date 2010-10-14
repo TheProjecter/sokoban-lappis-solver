@@ -18,6 +18,7 @@
 #include<vector>
 #include<string.h>
 #include"soko_heuristic.h"
+#include"mfmc.h"
 
 using namespace std;
 
@@ -73,6 +74,15 @@ class soko_node{
      * The number of integers in each bitmap
      */
     static int arr_size;
+    /**
+     * A solver for mfmc problem for calculating
+     * heurisitcs
+     */
+    static mfmc_solver *heu_mfmc_calc;
+    /**
+     * The number of boxes and goals on the board
+     */
+    static int num_boxes, num_goals;
 
     /**
      * Constructors of the class
@@ -180,6 +190,11 @@ class soko_node{
      */
     void calc_heur( int num_boxes, int num_goals, int *goals_rel_pos,
                 int *min_dist_matrix, int *box_goal_distance );
+
+    //Sets the static variables
+    static void set_static_vars(int num_cells,
+                                int num_boxes,
+                                int num_goals );
 
   private:
     /**

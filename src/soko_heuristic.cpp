@@ -72,3 +72,21 @@ int nearest_goal( int num_boxes, int num_goals,
 
     return sol;
 }
+
+int hungarian( int num_boxes, int num_goals,
+                    int *box_goal_distance){
+    hungarian_t prob;
+    hungarian_init(&prob,box_goal_distance,num_boxes,num_goals,HUNGARIAN_MIN);
+
+
+    //hungarian_print_rating(&prob);
+    hungarian_solve(&prob);
+
+    //hungarian_print_assignment(&prob);
+
+    int sol = hungarian_benefit(&prob);
+    //cout << "sol: " << sol << endl;
+    hungarian_fini(&prob);
+    return sol;
+}
+

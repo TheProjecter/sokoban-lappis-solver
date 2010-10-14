@@ -38,12 +38,11 @@ char* solve_sokoban(char *buffer, int buf_size){
 									 rel_to_abs_table, goals_pos,
 									 init_node, num_boxes, num_goals,
                                      goals_rel_pos);
-	
-    //Save the number of cells for every node
-    //and the number of ints needed for each bitmap
-    soko_node::num_cells = num_cells;
-    soko_node::arr_size = num_cells/int_bits;
-    if(num_cells%int_bits!=0) soko_node::arr_size++;
+
+    //Set the static variables of the soko nodes
+    //
+    soko_node :: set_static_vars(num_cells, 
+                                 num_boxes, num_goals);
     
     //Get the height of the board
     int board_height = board.size();
@@ -65,11 +64,6 @@ char* solve_sokoban(char *buffer, int buf_size){
                        deadlock_list, neighbors, 
                        num_neighbors, goals_pos, num_cells, board_width);  
     
-    
-    //Make the auxiliary stack and compute the initial area
-    int *stack_arr = new int[num_cells];
-    //Let the soko_node class have the array as a static variable
-    soko_node :: stack_arr = stack_arr;
     
     init_node->compute_area(   neighbors,
                             num_neighbors );
