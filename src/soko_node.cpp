@@ -261,6 +261,8 @@ void soko_node::calc_heur( int num_boxes, int num_goals, int *goals_rel_pos,
     //It's needed to find the boxes first
     int boxes_found = 0;
 
+    vector<int> bf;
+
     for(int p1 = 0; p1 < soko_node::arr_size; p1++){
         int mask = 1;
         for(int p2 = 0; p2 < int_bits; ++p2 ){
@@ -272,7 +274,9 @@ void soko_node::calc_heur( int num_boxes, int num_goals, int *goals_rel_pos,
 
             //A box was found! calc the min dist to
             //the other goals!
-            int box_rel = p1*soko_node::arr_size + p2;
+            int box_rel = p1*int_bits + p2;
+
+            bf.push_back(box_rel);
 
             for(int i=0; i<num_goals ; i++){
 
@@ -296,6 +300,9 @@ void soko_node::calc_heur( int num_boxes, int num_goals, int *goals_rel_pos,
     }
 
     //cout << "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" << endl;
+    //cout << "Box positions: ";
+    //for(int i=0;i<num_boxes;i++) cout << bf[i] << " ";
+    //cout << endl;
     //for(int i=0; i<num_boxes; i++){
     //    for(int j=0; j<num_goals ; j++)
     //        cout << box_goal_distance[ i*num_goals + j ] << " ";
@@ -305,7 +312,7 @@ void soko_node::calc_heur( int num_boxes, int num_goals, int *goals_rel_pos,
 
     //Now just call the heuristic function in the solver
     //this->heur = nearest_goal( num_boxes, num_goals, box_goal_distance );  
-    //int other_h = heu_mfmc_calc->calc_mc( box_goal_distance );  
+    //this->heur = heu_mfmc_calc->calc_mc( box_goal_distance );  
     this->heur = hungarian( num_boxes, num_goals, box_goal_distance );  
 
 
@@ -320,7 +327,7 @@ void soko_node :: set_static_vars(int num_cells,
     soko_node::arr_size       =   num_cells/int_bits;
     if(num_cells%int_bits!=0) soko_node::arr_size++;
 
-    //soko_node::heu_mfmc_calc  =   new mfmc_solver(num_boxes, num_goals);
+    soko_node::heu_mfmc_calc  =   new mfmc_solver(num_boxes, num_goals);
     soko_node::num_boxes      =   num_boxes;
     soko_node::num_goals      =   num_goals;
 

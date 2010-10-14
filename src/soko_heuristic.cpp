@@ -44,17 +44,97 @@ int* manhattan_dist( int num_cells,
         }
     }
 
-    //cout << endl << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>" << endl;
-    //for(int i=0; i<num_cells;i++){
-    //    for(int j=0; j<num_cells; j++)
-    //        cout << min_dist_matrix[i*num_cells+j] << " ";
+    return min_dist_matrix;
+}
+
+int* simple_bfs( int num_cells,
+                      int *rel_to_abs_table,
+                      int *abs_to_rel_table,
+                      int board_width
+        ){
+    //Make the graph taking in consideration only
+    //the places where a box can be pushed
+    vector< vector<int> > graph = 
+            vector< vector<int> >(num_cells,vector<int>());
+
+    const int mov[2][2] = { {0,1}, {1,0}  }; //Horizontal and vertical
+    //Check for each cell check both directions
+    for(int i=0;i<num_cells;i++){
+        int i_abs = rel_to_abs_table[i];
+        int i_y = i_abs/board_width;
+        int i_x = i_abs%board_width;
+        for(int m=0;m<2;m++){
+            //Take both neighbors
+            int pn_y = i_y + mov[m][0];
+            int pn_x = i_x + mov[m][1];
+            int nn_y = i_y - mov[m][0];
+            int nn_x = i_x - mov[m][1];
+            //Check if both neighbors are alright
+            int indx_pn = pn_y * board_width + pn_x;
+            int indx_nn = nn_y * board_width + nn_x;
+
+            if( abs_to_rel_table[ indx_pn ] != -1 &&
+                abs_to_rel_table[ indx_nn ] != -1 ) {
+                //Add the archs
+                int pn_rel = abs_to_rel_table[indx_pn];
+                int nn_rel = abs_to_rel_table[indx_nn];
+                graph[i].push_back(pn_rel);
+                graph[i].push_back(nn_rel);
+            }
+        }
+    }
+    
+    //for(int i=0;i<num_cells;i++){
+    //    cout << i << ": ";
+    //    for(int j=0;j<graph[i].size();j++)
+    //        cout << graph[i][j] << " ";
     //    cout << endl;
     //}
-    //cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>" << endl;
+
+
+    //With the generated graph, make a bfs algorithm
+    //for each cell and fill the min_dist_matrix
+    int *min_dist_matrix = new int[num_cells*num_cells];
+
+    //INF marks an unvisited node
+    for(int i=0;i<num_cells;i++)
+    for(int j=0;j<num_cells;j++)
+        min_dist_matrix[i*num_cells + j] = INF + i*num_cells + j;
+
+    for(int i=0; i<num_cells; i++){
+        queue<int> q;
+        
+        //Precompute the offset of this row
+        int row_offs = i*num_cells;
+         
+        //Push the first node and mark it    
+        q.push(i);
+        min_dist_matrix[row_offs + i] = 0;
+
+        while(!q.empty()){
+            int curr_cell = q.front();
+            q.pop();
+
+            int depth = min_dist_matrix[row_offs + curr_cell];
+
+            //Check for unvisited sons and push them in the queue
+            for( int s=0; s<graph[curr_cell].size() ; s++){
+                int my_son = graph[curr_cell][s];
+                if( min_dist_matrix[row_offs +  my_son] >= INF){
+                    min_dist_matrix[row_offs +  my_son] = depth + 1;
+                    q.push(my_son);
+                }
+            }
+        }
+    }
 
     return min_dist_matrix;
 }
 
+
+//.......................................................
+//.......................................................
+//.......................................................
 
 int nearest_goal( int num_boxes, int num_goals,
                     int *box_goal_distance){
