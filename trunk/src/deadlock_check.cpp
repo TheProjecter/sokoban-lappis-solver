@@ -177,115 +177,80 @@ bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
     int lists_size = num_cell/int_bits;
     if (num_cell%int_bits != 0) lists_size++;
 
-    int man_abs=rel_to_abs_table[node->last_pos];
-    int man_x=man_abs%board_width;
-    int man_y=man_abs/board_width;
-    int box_x=man_x;
-    int box_y=man_y;
-    bool horiz_vert;
+    int box_abs=rel_to_abs_table[node->last_pos];
+    int box_x=box_abs%board_width;
+    int box_y=box_abs/board_width;
+    
+    bool swap=false;
+    int inv_i=1;
+    int inv_j=1;
     switch(node->push_dir) {
         case 'U':
-            box_y--;
-            horiz_vert=false;
+            box_y--;  
             break;
         case 'D':
             box_y++;
-            horiz_vert=false;
+            inv_i=-1;
+            inv_j=-1;
             break;
         case 'L':
             box_x--;
-            horiz_vert=true;
+            swap=true;
+            inv_i=-1;
             break;
         case 'R':
             box_x++;
-            horiz_vert=true;
+            swap=true;
+            inv_j=-1;
             break;
     }
     int box_rel=abs_to_rel_table[box_y*board_width+box_x];
 
-    if(goals_pos[box_rel/int_bits] & (1<<(box_rel%int_bits)))
+    bool box[3][3], wall[3][3], goal[3][3];
+
+    for(int i=-1;i<2;i++) {
+        for(int j=-1;j<2;j++) {
+            int y=box_y+inv_i*(swap?j:i);
+            int x=box_x+inv_j*(swap?i:j);
+            int xy_rel=abs_to_rel_table[y*board_width+x];
+            box[i+1][j+1]=(xy_rel!=-1
+                            && (node->box_pos[xy_rel/int_bits]
+                                & (1<<(xy_rel%int_bits))));
+            wall[i+1][j+1]=(xy_rel==-1);
+            goal[i+1][j+1]=(xy_rel!=-1
+                            && (goals_pos[xy_rel/int_bits]
+                                & (1<<(xy_rel%int_bits))));
+        }
+    }
+    
+    if(!box[0][1] && !wall[0][1])
         return false;
 
-    int further_cell_x=2*box_x-man_x;
-    int further_cell_y=2*box_y-man_y;
-    int further_cell_rel=abs_to_rel_table[further_cell_y*board_width
-                                            +further_cell_x];
-
-    if(num_neighbors[box_rel]==4) {
-        if( (node->box_pos[further_cell_rel/int_bits]
-                    & (1<<(further_cell_rel%int_bits))) == 0)
-            return false;
-        
-        int near_box_1=abs_to_rel_table[(box_y+(horiz_vert?1:0))*board_width
-                                        +box_x+(horiz_vert?0:1)];
-        int near_box_2=abs_to_rel_table[(box_y-(horiz_vert?1:0))*board_width
-                                        +box_x-(horiz_vert?0:1)];
-        int near_further_1=abs_to_rel_table[(further_cell_y
-                                        +(horiz_vert?1:0))*board_width
-                                        +further_cell_x+(horiz_vert?0:1)];
-        int near_further_2=abs_to_rel_table[(further_cell_y
-                                        -(horiz_vert?1:0))*board_width
-                                        +further_cell_x-(horiz_vert?0:1)];
-
-        if(((node->box_pos[near_box_1/int_bits] & (1<<(near_box_1%int_bits)))
-            &&(near_further_1 == -1
-                ||(node->box_pos[near_further_1/int_bits]
-                        &(1<<(near_further_1%int_bits)))))
-                ||((node->box_pos[near_box_2/int_bits]
-                        &(1<<(near_box_2%int_bits)))
-            &&(near_further_2 == -1
-                ||(node->box_pos[near_further_2/int_bits]
-                        &(1<<(near_further_2%int_bits))))))
+    if((box[0][0] || wall[0][0])
+        && (box[1][0] || wall[1][0])
+        && (box[0][1] || wall[0][1])
+        && (!goal[1][1]
+            || !wall[0][0] && !goal[0][0]
+            || !wall[1][0] && !goal[1][0]
+            || !wall[0][1] && !goal[0][1]))
             return true;
-    } else if(num_neighbors[box_rel]==3) {
-        int near_box_1=abs_to_rel_table[(box_y+(horiz_vert?1:0))*board_width
-                                        +box_x+(horiz_vert?0:1)];
-        int near_box_2=abs_to_rel_table[(box_y-(horiz_vert?1:0))*board_width
-                                        +box_x-(horiz_vert?0:1)];
-        int near_further_1=abs_to_rel_table[(further_cell_y
-                                        +(horiz_vert?1:0))*board_width
-                                        +further_cell_x+(horiz_vert?0:1)];
-        int near_further_2=abs_to_rel_table[(further_cell_y
-                                        -(horiz_vert?1:0))*board_width
-                                        +further_cell_x-(horiz_vert?0:1)];
-        int near_man_1=abs_to_rel_table[(man_y+(horiz_vert?1:0))*board_width
-                                        +man_x+(horiz_vert?0:1)];
-        int near_man_2=abs_to_rel_table[(man_y-(horiz_vert?1:0))*board_width
-                                        +man_x-(horiz_vert?0:1)];
 
-        if(further_cell_rel == -1) {
-            if(((node->box_pos[near_box_1/int_bits]&(1<<(near_box_1%int_bits)))
-                &&(near_further_1==-1
-                    || near_man_1==-1
-                    || (node->box_pos[near_further_1/int_bits]
-                        &(1<<(near_further_1%int_bits)))))
-                ||((node->box_pos[near_box_2/int_bits]
-                        &(1<<(near_box_2%int_bits)))
-                && (near_further_2==-1
-                    || near_man_2==-1
-                    || (node->box_pos[near_further_2/int_bits]
-                        &(1<<(near_further_2%int_bits))))))
-                return true;
-        } else {
-            if( (node->box_pos[further_cell_rel/int_bits]
-                        &(1<<(further_cell_rel%int_bits)))
-                &&((near_box_1==-1
-                    && (near_further_1==-1
-                        || near_further_2==-1
-                        || (node->box_pos[near_further_1/int_bits]
-                                &(1<<(near_further_1%int_bits)))))
-                || (near_box_2==-1
-                    && (near_further_1==-1
-                        || near_further_2==-1
-                        || (node->box_pos[near_further_2/int_bits]
-                                &(1<<(near_further_2%int_bits)))))))
-                return true;
-        }
-    } else {
-        if(further_cell_rel != -1
-            &&(node->box_pos[further_cell_rel/int_bits]
-                        &(1<<(further_cell_rel%int_bits))))
+    if((box[0][1] || wall[0][1])
+        && (box[0][2] || wall[0][2])
+        && (box[1][2] || wall[1][2])
+        && (!goal[1][1]
+            || !wall[0][1] && !goal[0][1]
+            || !wall[0][2] && !goal[0][2]
+            || !wall[1][2] && !goal[1][2]))
             return true;
-    }
+
+    if(box[0][1] && ((wall[0][2] && wall[1][0]) || (wall[0][0] && wall[1][2]))
+        && (!goal[1][1] || !goal[0][1]))
+        return true;
+
+    if(wall[0][1] && ((box[1][0] && (!goal[1][1]||!goal[1][0]) && wall[2][0])
+                    ||(box[1][2] && (!goal[1][1]||!goal[1][2]) && wall[2][2])))
+        return true;
+
     return false;
 }
