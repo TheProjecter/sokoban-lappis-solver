@@ -252,5 +252,195 @@ bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
                     ||(box[1][2] && (!goal[1][1]||!goal[1][2]) && wall[2][2])))
         return true;
 
+    /*
+    bool tl_dl=true;
+    bool tr_dl=true;
+    bool bl_dl=true;
+    bool br_dl=true;
+
+    bool tl_goal=true;
+    bool tr_goal=true;
+    bool bl_goal=true;
+    bool br_goal=true;
+    
+    if(!goal[1][1] || (box[0][1]&&!goal[0][1])) {
+        tl_goal=false;
+        tr_goal=false;
+        bl_goal=false;
+        br_goal=false;
+    }
+    
+    int top_y=-1;
+    int bottom_y=1;
+    int right_x=1;
+    int left_x=-1;
+
+    bool curr_wall;
+    bool curr_box;
+    bool curr_goal;
+    bool next_wall;
+    bool next_box;
+    bool next_goal;
+
+    int curr_x;
+    int curr_y;
+    int curr_rel;
+    int next_x;
+    int next_y;
+    int next_rel;
+    
+    if(box[0][1]) {
+        // top-left
+        curr_y=box_y;
+        curr_x=box_x;
+        do {
+            curr_y+=inv_i*(swap?left_x:top_y);
+            curr_x+=inv_j*(swap?top_y:left_x);
+
+            next_y=curr_y+inv_i*(swap?0:top_y);
+            next_x=curr_x+inv_j*(swap?top_y:0);
+
+            curr_rel=abs_to_rel_table[curr_y*board_width+curr_x];
+            next_rel=abs_to_rel_table[next_y*board_width+next_x];
+
+            curr_wall=(curr_rel==-1);
+            curr_box=(curr_rel!=-1
+                        && (node->box_pos[curr_rel/int_bits]
+                                & (1<<(curr_rel%int_bits))));
+            curr_goal=(curr_rel!=-1
+                        && (goals_pos[curr_rel/int_bits]
+                                & (1<<(curr_rel%int_bits))));
+
+            next_wall=(next_rel==-1);
+            next_box=(next_rel!=-1
+                        && (node->box_pos[next_rel/int_bits]
+                                & (1<<(next_rel%int_bits))));
+            next_box=(next_rel!=-1
+                        && (goals_pos[next_rel/int_bits]
+                                & (1<<(next_rel%int_bits))));
+            if(!(curr_wall || (curr_box && (next_wall || next_box))))
+                tl_dl=false;
+            if((curr_box && !curr_goal) || (next_box && !next_goal))
+                tl_goal=false;
+        } while(curr_box && next_box);
+
+        // top-right
+        curr_y=box_y;
+        curr_x=box_x;
+        do {
+            curr_y+=inv_i*(swap?left_x:top_y);
+            curr_x+=inv_j*(swap?top_y:left_x);
+
+            next_y=curr_y+inv_i*(swap?0:top_y);
+            next_x=curr_x+inv_j*(swap?top_y:0);
+
+            curr_rel=abs_to_rel_table[curr_y*board_width+curr_x];
+            next_rel=abs_to_rel_table[next_y*board_width+next_x];
+
+            curr_wall=(curr_rel==-1);
+            curr_box=(curr_rel!=-1
+                        && (node->box_pos[curr_rel/int_bits]
+                                & (1<<(curr_rel%int_bits))));
+            curr_goal=(curr_rel!=-1
+                        && (goals_pos[curr_rel/int_bits]
+                                & (1<<(curr_rel%int_bits))));
+
+            next_wall=(next_rel==-1);
+            next_box=(next_rel!=-1
+                        && (node->box_pos[next_rel/int_bits]
+                                & (1<<(next_rel%int_bits))));
+            next_box=(next_rel!=-1
+                        && (goals_pos[next_rel/int_bits]
+                                & (1<<(next_rel%int_bits))));
+            if(!(curr_wall || (curr_box && (next_wall || next_box))))
+                tr_dl=false;
+            if((curr_box && !curr_goal) || (next_box && !next_goal))
+                tr_goal=false;
+        } while(curr_box && next_box);
+    }
+    else if(!wall[0][1]) {
+        tl_dl=false;
+        tr_dl=false;
+    }
+
+    if(tl_dl) {
+        // bottom-right
+        curr_y=box_y;
+        curr_x=box_x;
+        do {
+            curr_y+=inv_i*(swap?left_x:top_y);
+            curr_x+=inv_j*(swap?top_y:left_x);
+
+            next_y=curr_y+inv_i*(swap?0:bottom_y);
+            next_x=curr_x+inv_j*(swap?bottom_y:0);
+
+            curr_rel=abs_to_rel_table[curr_y*board_width+curr_x];
+            next_rel=abs_to_rel_table[next_y*board_width+next_x];
+
+            curr_wall=(curr_rel==-1);
+            curr_box=(curr_rel!=-1
+                        && (node->box_pos[curr_rel/int_bits]
+                                & (1<<(curr_rel%int_bits))));
+            curr_goal=(curr_rel!=-1
+                        && (goals_pos[curr_rel/int_bits]
+                                & (1<<(curr_rel%int_bits))));
+
+            next_wall=(next_rel==-1);
+            next_box=(next_rel!=-1
+                        && (node->box_pos[next_rel/int_bits]
+                                & (1<<(next_rel%int_bits))));
+            next_box=(next_rel!=-1
+                        && (goals_pos[next_rel/int_bits]
+                                & (1<<(next_rel%int_bits))));
+            if(!(next_wall || (next_box && (curr_wall || curr_box))))
+                br_dl=false;
+            if((curr_box && !curr_goal) || (next_box && !next_goal))
+                br_goal=false;
+        } while(curr_box && next_box);
+        
+        if(br_dl && !tl_goal && !br_goal)
+            return true;
+    }
+
+    if(tr_dl) {
+        // bottom-left
+        curr_y=box_y;
+        curr_x=box_x;
+        do {
+            curr_y+=inv_i*(swap?left_x:top_y);
+            curr_x+=inv_j*(swap?top_y:left_x);
+
+            next_y=curr_y+inv_i*(swap?0:bottom_y);
+            next_x=curr_x+inv_j*(swap?bottom_y:0);
+
+            curr_rel=abs_to_rel_table[curr_y*board_width+curr_x];
+            next_rel=abs_to_rel_table[next_y*board_width+next_x];
+
+            curr_wall=(curr_rel==-1);
+            curr_box=(curr_rel!=-1
+                        && (node->box_pos[curr_rel/int_bits]
+                                & (1<<(curr_rel%int_bits))));
+            curr_goal=(curr_rel!=-1
+                        && (goals_pos[curr_rel/int_bits]
+                                & (1<<(curr_rel%int_bits))));
+
+            next_wall=(next_rel==-1);
+            next_box=(next_rel!=-1
+                        && (node->box_pos[next_rel/int_bits]
+                                & (1<<(next_rel%int_bits))));
+            next_box=(next_rel!=-1
+                        && (goals_pos[next_rel/int_bits]
+                                & (1<<(next_rel%int_bits))));
+            if(!(next_wall || (next_box && (curr_wall || curr_box))))
+                bl_dl=false;
+            if((curr_box && !curr_goal) || (next_box && !next_goal))
+                bl_goal=false;
+        } while(curr_box && next_box);
+        
+        if(bl_dl && !tr_goal && !bl_goal)
+            return true;
+    }
+
+    */
     return false;
 }
