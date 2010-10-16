@@ -252,7 +252,6 @@ bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
                     ||(box[1][2] && (!goal[1][1]||!goal[1][2]) && wall[2][2])))
         return true;
 
-    /*
     bool tl_dl=true;
     bool tr_dl=true;
     bool bl_dl=true;
@@ -297,8 +296,8 @@ bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
             curr_y+=inv_i*(swap?left_x:top_y);
             curr_x+=inv_j*(swap?top_y:left_x);
 
-            next_y=curr_y+inv_i*(swap?0:top_y);
-            next_x=curr_x+inv_j*(swap?top_y:0);
+            next_y=curr_y+inv_i*(swap?0:-1);
+            next_x=curr_x+inv_j*(swap?-1:0);
 
             curr_rel=abs_to_rel_table[curr_y*board_width+curr_x];
             next_rel=abs_to_rel_table[next_y*board_width+next_x];
@@ -315,7 +314,7 @@ bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
             next_box=(next_rel!=-1
                         && (node->box_pos[next_rel/int_bits]
                                 & (1<<(next_rel%int_bits))));
-            next_box=(next_rel!=-1
+            next_goal=(next_rel!=-1
                         && (goals_pos[next_rel/int_bits]
                                 & (1<<(next_rel%int_bits))));
             if(!(curr_wall || (curr_box && (next_wall || next_box))))
@@ -328,11 +327,11 @@ bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
         curr_y=box_y;
         curr_x=box_x;
         do {
-            curr_y+=inv_i*(swap?left_x:top_y);
-            curr_x+=inv_j*(swap?top_y:left_x);
+            curr_y+=inv_i*(swap?right_x:top_y);
+            curr_x+=inv_j*(swap?top_y:right_x);
 
-            next_y=curr_y+inv_i*(swap?0:top_y);
-            next_x=curr_x+inv_j*(swap?top_y:0);
+            next_y=curr_y+inv_i*(swap?0:-1);
+            next_x=curr_x+inv_j*(swap?-1:0);
 
             curr_rel=abs_to_rel_table[curr_y*board_width+curr_x];
             next_rel=abs_to_rel_table[next_y*board_width+next_x];
@@ -349,7 +348,7 @@ bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
             next_box=(next_rel!=-1
                         && (node->box_pos[next_rel/int_bits]
                                 & (1<<(next_rel%int_bits))));
-            next_box=(next_rel!=-1
+            next_goal=(next_rel!=-1
                         && (goals_pos[next_rel/int_bits]
                                 & (1<<(next_rel%int_bits))));
             if(!(curr_wall || (curr_box && (next_wall || next_box))))
@@ -368,11 +367,11 @@ bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
         curr_y=box_y;
         curr_x=box_x;
         do {
-            curr_y+=inv_i*(swap?left_x:top_y);
-            curr_x+=inv_j*(swap?top_y:left_x);
+            curr_y+=inv_i*(swap?right_x:bottom_y);
+            curr_x+=inv_j*(swap?bottom_y:right_x);
 
-            next_y=curr_y+inv_i*(swap?0:bottom_y);
-            next_x=curr_x+inv_j*(swap?bottom_y:0);
+            next_y=curr_y+inv_i*(swap?0:-1);
+            next_x=curr_x+inv_j*(swap?-1:0);
 
             curr_rel=abs_to_rel_table[curr_y*board_width+curr_x];
             next_rel=abs_to_rel_table[next_y*board_width+next_x];
@@ -389,7 +388,7 @@ bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
             next_box=(next_rel!=-1
                         && (node->box_pos[next_rel/int_bits]
                                 & (1<<(next_rel%int_bits))));
-            next_box=(next_rel!=-1
+            next_goal=(next_rel!=-1
                         && (goals_pos[next_rel/int_bits]
                                 & (1<<(next_rel%int_bits))));
             if(!(next_wall || (next_box && (curr_wall || curr_box))))
@@ -398,7 +397,7 @@ bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
                 br_goal=false;
         } while(curr_box && next_box);
         
-        if(br_dl && !tl_goal && !br_goal)
+        if(br_dl && (!tl_goal || !br_goal))
             return true;
     }
 
@@ -407,11 +406,11 @@ bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
         curr_y=box_y;
         curr_x=box_x;
         do {
-            curr_y+=inv_i*(swap?left_x:top_y);
-            curr_x+=inv_j*(swap?top_y:left_x);
+            curr_y+=inv_i*(swap?left_x:bottom_y);
+            curr_x+=inv_j*(swap?bottom_y:left_x);
 
-            next_y=curr_y+inv_i*(swap?0:bottom_y);
-            next_x=curr_x+inv_j*(swap?bottom_y:0);
+            next_y=curr_y+inv_i*(swap?0:-1);
+            next_x=curr_x+inv_j*(swap?-1:0);
 
             curr_rel=abs_to_rel_table[curr_y*board_width+curr_x];
             next_rel=abs_to_rel_table[next_y*board_width+next_x];
@@ -428,7 +427,7 @@ bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
             next_box=(next_rel!=-1
                         && (node->box_pos[next_rel/int_bits]
                                 & (1<<(next_rel%int_bits))));
-            next_box=(next_rel!=-1
+            next_goal=(next_rel!=-1
                         && (goals_pos[next_rel/int_bits]
                                 & (1<<(next_rel%int_bits))));
             if(!(next_wall || (next_box && (curr_wall || curr_box))))
@@ -437,10 +436,8 @@ bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
                 bl_goal=false;
         } while(curr_box && next_box);
         
-        if(bl_dl && !tr_goal && !bl_goal)
+        if(bl_dl && (!tr_goal || !bl_goal))
             return true;
     }
-
-    */
     return false;
 }
