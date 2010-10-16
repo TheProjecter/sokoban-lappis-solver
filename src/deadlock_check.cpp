@@ -252,6 +252,7 @@ bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
                     ||(box[1][2] && (!goal[1][1]||!goal[1][2]) && wall[2][2])))
         return true;
 
+/*
     bool tl_dl=true;
     bool tr_dl=true;
     bool bl_dl=true;
@@ -439,5 +440,6 @@ bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
         if(bl_dl && (!tr_goal || !bl_goal))
             return true;
     }
+	*/
     return false;
 }
