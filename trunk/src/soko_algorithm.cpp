@@ -93,8 +93,6 @@ soko_node* a_star_search(soko_node *init_node, int board_height,
     //                      board_width
     //        );
 
-    int *box_goal_distance = new int[ num_boxes*num_goals ];
-
     //cout << endl << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>" << endl;
     //for(int i=0; i<num_cells;i++){
     //    for(int j=0; j<num_cells; j++){
@@ -121,7 +119,7 @@ soko_node* a_star_search(soko_node *init_node, int board_height,
 
     //Calculate the heuristic of the first node
     init_node->calc_heur( num_boxes, num_goals, goals_rel_pos, 
-                        min_dist_matrix, box_goal_distance );
+                        min_dist_matrix);
 
 
     init_node->print( board_height, board_width, abs_to_rel_table );
@@ -164,7 +162,7 @@ soko_node* a_star_search(soko_node *init_node, int board_height,
         
                 //Calculate the heuristic of the node
                 my_son->calc_heur( num_boxes, num_goals, goals_rel_pos, 
-                                    min_dist_matrix, box_goal_distance );
+                                    min_dist_matrix);
 
                 p_queue.push(my_son);
             }

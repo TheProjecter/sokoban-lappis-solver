@@ -252,13 +252,16 @@ bool soko_node::is_solution(int *goals_pos){
 }
 
 
+#define N 55
+int cost[N][N];
 
 void soko_node::calc_heur( int num_boxes, int num_goals, int *goals_rel_pos,
-                            int *min_dist_matrix, int *box_goal_distance ){
+                            int *min_dist_matrix){
 
     //First fill the box_goal_distance matrix with the specific values.
     //It's needed to find the boxes first
     int boxes_found = 0;
+
 
     vector<int> bf;
 
@@ -283,8 +286,10 @@ void soko_node::calc_heur( int num_boxes, int num_goals, int *goals_rel_pos,
                 int indx_2 = box_rel*soko_node::num_cells +
                                 goals_rel_pos[i];
 
-                box_goal_distance[ indx_1 ] =
-                            min_dist_matrix[ indx_2 ];
+                //box_goal_distance[ indx_1 ] =
+                //            min_dist_matrix[ indx_2 ];
+                cost[boxes_found][i] =
+                    -min_dist_matrix[ indx_2 ];
 
             }
 
@@ -312,8 +317,7 @@ void soko_node::calc_heur( int num_boxes, int num_goals, int *goals_rel_pos,
     //Now just call the heuristic function in the solver
     //this->heur = nearest_goal( num_boxes, num_goals, box_goal_distance );  
     //this->heur = hungarian( num_boxes, num_goals, box_goal_distance );  
-    this->heur = hungarian_tc( box_goal_distance, num_boxes );  
-
+    this->heur = hungarian_tc( cost, num_boxes );  
 
 }
 

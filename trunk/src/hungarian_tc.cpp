@@ -3,7 +3,7 @@
 #define N 55             //max number of vertices in one part
 #define INF 100000000    //just infinity
 
-int cost[N][N];          //cost matrix
+//int cost[N][N];          //cost matrix
 int n, max_match;        //n workers and n jobs
 int lx[N], ly[N];        //labels of X and Y parts
 int xy[N];               //xy[x] - vertex that is matched with x,
@@ -15,7 +15,7 @@ int slackx[N];           //slackx[y] such a vertex, that
 int prev[N];             //array for memorizing alternating paths
 
 
-void init_labels()
+void init_labels(int cost[N][N])
 {
     memset(lx, 0, sizeof(lx));
     memset(ly, 0, sizeof(ly));
@@ -24,7 +24,7 @@ void init_labels()
             lx[x] = max(lx[x], cost[x][y]);
 }
 
-void update_labels()
+void update_labels(int cost[N][N])
 {
     int x, y, delta = INF;             //init delta as infinity
     for (y = 0; y < n; y++)            //calculate delta using slack
@@ -39,7 +39,7 @@ void update_labels()
             slack[y] -= delta;
 }
 
-void add_to_tree(int x, int prevx) 
+void add_to_tree(int x, int prevx,int cost[N][N])
 //x - current vertex,prevx - vertex from X before x in the alternating path,
 //so we add edges (prevx, xy[x]), (xy[x], x)
 {
@@ -53,7 +53,7 @@ void add_to_tree(int x, int prevx)
         }
 }
 
-void augment()                         //main function of the algorithm
+void augment(int cost[N][N])                         //main function of the algorithm
 {
     if (max_match == n) return;        //check wether matching is already perfect
     int x, y, root;                    //just counters and root vertex
@@ -77,7 +77,7 @@ void augment()                         //main function of the algorithm
         slackx[y] = root;
     }
 
-    //second part of augment() function
+    //second part of augment(cost) function
     while (true)                                                        //main cycle
     {
         while (rd < wr)                                                 //building tree with bfs cycle
@@ -91,13 +91,13 @@ void augment()                         //main function of the algorithm
                     T[y] = true;                                        //else just add y to T,
                     q[wr++] = yx[y];                                    //add vertex yx[y], which is matched
                                                                         //with y, to the queue
-                    add_to_tree(yx[y], x);                              //add edges (x,y) and (y,yx[y]) to the tree
+                    add_to_tree(yx[y], x,cost);                              //add edges (x,y) and (y,yx[y]) to the tree
                 }
             if (y < n) break;                                           //augmenting path found!
         }
         if (y < n) break;                                               //augmenting path found!
 
-        update_labels();                                                //augmenting path not found, so improve labeling
+        update_labels(cost);                                                //augmenting path not found, so improve labeling
         wr = rd = 0;                
         for (y = 0; y < n; y++)        
         //in this cycle we add edges that were added to the equality graph as a
@@ -118,7 +118,7 @@ void augment()                         //main function of the algorithm
                     {
                         q[wr++] = yx[y];                                //add vertex yx[y], which is matched with
                                                                         //y, to the queue
-                        add_to_tree(yx[y], slackx[y]);                  //and add edges (x,y) and (y,
+                        add_to_tree(yx[y], slackx[y],cost);                  //and add edges (x,y) and (y,
                                                                         //yx[y]) to the tree
                     }
                 }
@@ -136,23 +136,24 @@ void augment()                         //main function of the algorithm
             yx[cy] = cx;
             xy[cx] = cy;
         }
-        augment();                                                      //recall function, go to step 1 of the algorithm
+        augment(cost);                                                      //recall function, go to step 1 of the algorithm
     }
-}//end of augment() function
+}//end of augment(cost) function
 
-int hungarian_tc(int *box_goal_distance, int num_boxes)
+int hungarian_tc(int (*cost)[N], int num_boxes)
 {
     n = num_boxes;
-    for(int i=0;i<num_boxes;i++)
-    for(int j=0;j<num_boxes;j++)
-        cost[i][j] = -box_goal_distance[i*num_boxes+j];
+    //for(int i=0;i<num_boxes;i++)
+    //for(int j=0;j<num_boxes;j++)
+        //cost[i][j] = -box_goal_distance[i*num_boxes+j];
+    
 
     int ret = 0;                      //weight of the optimal matching
     max_match = 0;                    //number of vertices in current matching
     memset(xy, -1, sizeof(xy));    
     memset(yx, -1, sizeof(yx));
-    init_labels();                    //step 0
-    augment();                        //steps 1-3
+    init_labels(cost);                    //step 0
+    augment(cost);                        //steps 1-3
     for (int x = 0; x < n; x++)       //forming answer there
         ret += cost[x][xy[x]];
     return -ret;
