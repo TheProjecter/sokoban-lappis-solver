@@ -315,8 +315,7 @@ void soko_node::calc_heur( int num_boxes, int num_goals, int *goals_rel_pos,
     //cout << "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" << endl;
 
     //Now just call the heuristic function in the solver
-    //this->heur = nearest_goal( num_boxes, num_goals, box_goal_distance );  
-    //this->heur = hungarian( num_boxes, num_goals, box_goal_distance );  
+    //this->heur = nearest_goal( num_boxes, num_goals, cost );  
     this->heur = hungarian_tc( cost, num_boxes );  
 
 }

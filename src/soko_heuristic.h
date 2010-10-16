@@ -20,10 +20,10 @@
 #include<vector>
 #include<stack>
 #include<utility>
-#include"hungarian.h"
 
 //Maximum number of cells
 #define INF 5000
+#define N 55
 #define min(a,b) (a<b?a:b)
 
 using namespace std;
@@ -113,10 +113,8 @@ int*   pusher_relative_bfs( int num_cells,
  *                              each node to its closest goal
  */
 int nearest_goal( int num_boxes, int num_goals,
-                    int *box_goal_distance);
+                    int (*cost)[N]);
 
-int hungarian( int num_boxes, int num_goals,
-                    int *box_goal_distance);
 
 
 //............................................................................
