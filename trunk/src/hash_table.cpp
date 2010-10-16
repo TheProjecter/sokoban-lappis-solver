@@ -94,8 +94,8 @@ void hash_table :: statistics(){
     cout << "---------" << endl;
     cout << "size:\t" << HASH_TABLE_DIM << endl;
     cout << "num nodes:\t" << num_nodes << endl;
-    cout << "% used cells:\t" << (100.0*used_cells/HASH_TABLE_DIM) << endl;
+    cout << "used cells:\t" << (100.0*used_cells/HASH_TABLE_DIM) << "%" << endl;
     cout << "avg num pointers in used cell:\t" << ((float)num_nodes/used_cells) << endl;
     cout << "num pointers in biggest cell:\t" << max << endl;
-    cout << "% used cells with only 1 entry:\t" << (100.0*num_unary_cells/used_cells) << endl << endl;
+    cout << "used cells with only 1 entry:\t" << (100.0*num_unary_cells/used_cells) << "%" << endl << endl;
 }
