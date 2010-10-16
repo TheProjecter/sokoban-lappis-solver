@@ -84,8 +84,20 @@ bool hash_table :: searchNode(int pos, soko_node* info){
 int hash_table :: hash(soko_node *info){
 	int area = *(info->area);
 	int box_pos = *(info->box_pos);
+	int nr_ones_area = 0;
+	for (int i = 0; i < sizeof(int); i++) {
+		if ((area & (1<<i)) == 1) {
+			nr_ones_area++;
+		}
+	}
+	int nr_ones_box_pos = 0;
+	for (int i = 0; i < sizeof(int); i++) {
+		if ((box_pos & (1<<i)) == 1) {
+			nr_ones_box_pos++;
+		}
+	}
 	int x_or = area ^ box_pos;
-	int aux = area * box_pos * x_or;
+	int aux = area * box_pos * x_or * nr_ones_area * nr_ones_box_pos;
 	aux = aux % sizeof(this->HashTable);
 	return aux;
 }
