@@ -68,7 +68,7 @@ bool hash_table :: searchNode(soko_node* s_node) {
 int hash_table :: hash(soko_node *s_node){
     long int h=0;
     for(int i=0;i<soko_node::arr_size;i++)
-        h=(h<<int_bits) + s_node->area[i]^s_node->box_pos[i];
+        h=(h<<int_bits/2) + s_node->area[i]^s_node->box_pos[i];
 
     h^=(h>>4);
     h=(h^0xdeadbeef)+(h<<5);
