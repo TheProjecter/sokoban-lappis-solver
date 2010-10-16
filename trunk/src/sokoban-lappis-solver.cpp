@@ -179,27 +179,27 @@ int precompute_board(int board_width, vector< string > &board,
     }
 
     //Check results
-    cout << "boxes: " << num_boxes << endl
-        << "goals: " << num_goals << endl
-        << "possitions of goals: ";
+    //cout << "boxes: " << num_boxes << endl
+    //    << "goals: " << num_goals << endl
+    //    << "possitions of goals: ";
 
-    for(int j=0;j<num_goals;j++)
-        cout << goals_rel_pos[j] << " ";
-    cout << endl;
+    //for(int j=0;j<num_goals;j++)
+    //    cout << goals_rel_pos[j] << " ";
+    //cout << endl;
 
-    cout << ".................." << endl;
-    for(int i=0; i<board.size() ; i++){
-        for(int j=0;j<board_width;j++){
-            int relv = abs_to_rel_table[i*board_width+j];
-            if(relv !=-1)
-                cout << (relv<10?" ":"") << relv << " ";
-            else
-                cout << "## ";
-        }
-        cout << endl;
-    }
+    //cout << ".................." << endl;
+    //for(int i=0; i<board.size() ; i++){
+    //    for(int j=0;j<board_width;j++){
+    //        int relv = abs_to_rel_table[i*board_width+j];
+    //        if(relv !=-1)
+    //            cout << (relv<10?" ":"") << relv << " ";
+    //        else
+    //            cout << "## ";
+    //    }
+    //    cout << endl;
+    //}
 
-    cout << ".................." << endl;
+    //cout << ".................." << endl;
 
     return num_cell;
 }

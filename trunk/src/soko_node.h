@@ -18,7 +18,7 @@
 #include<vector>
 #include<string.h>
 #include"soko_heuristic.h"
-#include"mfmc.h"
+#include"hungarian_tc.h"
 
 using namespace std;
 
@@ -74,11 +74,6 @@ class soko_node{
      * The number of integers in each bitmap
      */
     static int arr_size;
-    /**
-     * A solver for mfmc problem for calculating
-     * heurisitcs
-     */
-    static mfmc_solver *heu_mfmc_calc;
     /**
      * The number of boxes and goals on the board
      */
