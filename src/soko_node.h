@@ -184,7 +184,7 @@ class soko_node{
      *                          the min distance between the cells i and j
      */
     void calc_heur( int num_boxes, int num_goals, int *goals_rel_pos,
-                int *min_dist_matrix, int *box_goal_distance );
+                int *min_dist_matrix);
 
     //Sets the static variables
     static void set_static_vars(int num_cells,
