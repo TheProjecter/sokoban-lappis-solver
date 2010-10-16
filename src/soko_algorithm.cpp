@@ -86,6 +86,13 @@ soko_node* a_star_search(soko_node *init_node, int board_height,
                           neighbors, num_neighbors
             );
 
+    //int *min_dist_matrix =
+    //    simple_bfs( num_cells,
+    //                      rel_to_abs_table,
+    //                      abs_to_rel_table,
+    //                      board_width
+    //        );
+
     int *box_goal_distance = new int[ num_boxes*num_goals ];
 
     //cout << endl << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>" << endl;

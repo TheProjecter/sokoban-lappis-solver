@@ -24,7 +24,6 @@ extern int int_bits;
 int *soko_node::stack_arr;
 int soko_node::num_cells;
 int soko_node::arr_size;
-mfmc_solver *soko_node::heu_mfmc_calc;
 int soko_node::num_boxes;
 int soko_node::num_goals;
 
@@ -312,8 +311,8 @@ void soko_node::calc_heur( int num_boxes, int num_goals, int *goals_rel_pos,
 
     //Now just call the heuristic function in the solver
     //this->heur = nearest_goal( num_boxes, num_goals, box_goal_distance );  
-    //this->heur = heu_mfmc_calc->calc_mc( box_goal_distance );  
-    this->heur = hungarian( num_boxes, num_goals, box_goal_distance );  
+    //this->heur = hungarian( num_boxes, num_goals, box_goal_distance );  
+    this->heur = hungarian_tc( box_goal_distance, num_boxes );  
 
 
 }
@@ -327,7 +326,6 @@ void soko_node :: set_static_vars(int num_cells,
     soko_node::arr_size       =   num_cells/int_bits;
     if(num_cells%int_bits!=0) soko_node::arr_size++;
 
-    //soko_node::heu_mfmc_calc  =   new mfmc_solver(num_boxes, num_goals);
     soko_node::num_boxes      =   num_boxes;
     soko_node::num_goals      =   num_goals;
 
