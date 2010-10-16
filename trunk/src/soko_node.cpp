@@ -327,7 +327,7 @@ void soko_node :: set_static_vars(int num_cells,
     soko_node::arr_size       =   num_cells/int_bits;
     if(num_cells%int_bits!=0) soko_node::arr_size++;
 
-    soko_node::heu_mfmc_calc  =   new mfmc_solver(num_boxes, num_goals);
+    //soko_node::heu_mfmc_calc  =   new mfmc_solver(num_boxes, num_goals);
     soko_node::num_boxes      =   num_boxes;
     soko_node::num_goals      =   num_goals;
 
