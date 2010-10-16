@@ -21,7 +21,7 @@
 int int_bits = sizeof(int)*8;
 
 char* solve_sokoban(char *buffer, int buf_size){
-    
+    clock_t start=clock();
     vector< string > board;
     
     //Read and get the initial board
@@ -90,7 +90,9 @@ char* solve_sokoban(char *buffer, int buf_size){
     char *solo=search_path(sol_node,board.size()*board_width,board_width,
                            abs_to_rel_table,rel_to_abs_table);
       
-     
+    clock_t finish=clock();
+    cout << "TOTAL TIME: " << ((finish - start)/CLOCKS_PER_SEC) << " s" << endl;
+
     return solo;
 }
 
