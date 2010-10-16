@@ -264,7 +264,7 @@ int*   pusher_relative_bfs( int num_cells,
 //.......................................................
 
 int nearest_goal( int num_boxes, int num_goals,
-                    int *box_goal_distance){
+                    int box_goal_distance[N][N]){
     int sol = 0;
 
     //For each box, calculate the minumum distance to a goal
@@ -273,29 +273,13 @@ int nearest_goal( int num_boxes, int num_goals,
         int mini = INF;
 
         for( int j=0; j < num_goals ; j++)
-            mini = min(mini, box_goal_distance[i*num_goals+j]);
+            mini = min(mini, -box_goal_distance[i][j]);
         sol += mini;
     }
 
     return sol;
 }
 
-int hungarian( int num_boxes, int num_goals,
-                    int *box_goal_distance){
-    hungarian_t prob;
-    hungarian_init(&prob,box_goal_distance,num_boxes,num_goals,HUNGARIAN_MIN);
-
-
-    //hungarian_print_rating(&prob);
-    hungarian_solve(&prob);
-
-    //hungarian_print_assignment(&prob);
-
-    int sol = hungarian_benefit(&prob);
-    //cout << "sol: " << sol << endl;
-    hungarian_fini(&prob);
-    return sol;
-}
 
 //.......................................................
 //.......................................................
