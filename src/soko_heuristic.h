@@ -18,10 +18,13 @@
 #include<string.h>
 #include<queue>
 #include<vector>
+#include<stack>
+#include<utility>
 #include"hungarian.h"
 
 //Maximum number of cells
 #define INF 5000
+#define min(a,b) (a<b?a:b)
 
 using namespace std;
 
@@ -57,10 +60,36 @@ int* manhattan_dist( int num_cells,
                      int board_width 
                      );
 
+/**
+ * Calculates the minimum distance from every cell to
+ * any other performing a BFS.
+ *
+ * @param num_cells         The number of cells in the rel representation
+ *                          of the board
+ *
+ * @param rel_to_abs_table  Transformation table from relative
+ *                          positions to absolute ones.
+ *
+ * @param abs_to_rel_table  Transformation table from absolute
+ *                          positions to relative ones.
+ *
+ * @param board_width       The width of the board
+ * 
+ * @return                  A "num_cells x num_cells" matrix, represented
+ *                          as an array, where the position [i][j] contains
+ *                          the manhattan distance between the cells i and j
+ */
 int*   simple_bfs( int num_cells,
                       int *rel_to_abs_table,
                       int *abs_to_rel_table,
                       int board_width
+        );
+
+int*   pusher_relative_bfs( int num_cells,
+                      int *rel_to_abs_table,
+                      int *abs_to_rel_table,
+                      int board_width,
+                      int (*neighbors)[4], int *num_neighbors
         );
 //............................................................................
 //                            Calc of heuristic
@@ -93,6 +122,39 @@ int hungarian( int num_boxes, int num_goals,
 //............................................................................
 //                          Others (auxiliary functions)
 //............................................................................
+
+struct edge{
+    int v, w, n;
+    edge();
+    edge(int v, int w, int n);
+    bool operator==(const edge &e) const;
+};
+
+struct cbc_global{
+    stack<edge> stk;
+    int count;
+    int number_of_bcn_comp;
+    int *visit;
+    int *least;
+    int (*graph)[4];
+    int *graph_arity;
+    int (*biconex_edges)[4];
+    bool *art_node;
+    int sons_of_o;
+};
+
+bool* calc_biconex_comp( int num_cells, int (*neighbors)[4],
+                        int *num_neighbors, int (*biconex_edges)[4]);
+
+
+void biconex_calc_dfs(int x,int p, cbc_global &g_data);
+
+vector< vector< pair<int,int> > >* calc_pr_graph(
+        int num_cells, int *rel_to_abs_table,
+        int *abs_to_rel_table, int board_width,
+        bool* art_node, int (*biconex_edges)[4],
+        int (*neighbors)[4]);
+
 
 #endif
 

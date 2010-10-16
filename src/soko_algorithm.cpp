@@ -66,7 +66,7 @@ soko_node* breadth_first_search(soko_node *init_node, int board_height,
 }
 
 soko_node* a_star_search(soko_node *init_node, int board_height,
-								int board_width,
+                                int board_width,
                                 int* abs_to_rel_table, int *rel_to_abs_table,
                                 int* deadlock_list, int num_cells,
                                 int (*neighbors)[4], int *num_neighbors,
@@ -78,8 +78,14 @@ soko_node* a_star_search(soko_node *init_node, int board_height,
     //Precompute the min_dist_matrix to make possible the
     //calculations of heuristics and build the box_goal_distance
     //matrix to make it available for further use
-    int *min_dist_matrix = simple_bfs(num_cells, rel_to_abs_table,
-                                        abs_to_rel_table, board_width); 
+    int *min_dist_matrix =
+        pusher_relative_bfs( num_cells,
+                          rel_to_abs_table,
+                          abs_to_rel_table,
+                          board_width,
+                          neighbors, num_neighbors
+            );
+
     int *box_goal_distance = new int[ num_boxes*num_goals ];
 
     //cout << endl << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>" << endl;
@@ -110,6 +116,7 @@ soko_node* a_star_search(soko_node *init_node, int board_height,
     init_node->calc_heur( num_boxes, num_goals, goals_rel_pos, 
                         min_dist_matrix, box_goal_distance );
 
+
     init_node->print( board_height, board_width, abs_to_rel_table );
 
     //Push the first node and begin algorithm
@@ -122,8 +129,8 @@ soko_node* a_star_search(soko_node *init_node, int board_height,
         p_queue.pop();
 
         sons=curr_node->get_sons(board_width, abs_to_rel_table,
-								 rel_to_abs_table, neighbors, num_neighbors);
-		generated_nodes += sons->size();
+                                rel_to_abs_table, neighbors, num_neighbors);
+        generated_nodes += sons->size();
 
         //cout << generated_nodes << endl;
         if(expanded_nodes%10000 == 0){
@@ -142,7 +149,7 @@ soko_node* a_star_search(soko_node *init_node, int board_height,
             if (is_deadlock(rel_to_abs_table, abs_to_rel_table, 
                             deadlock_list, neighbors,
                             num_neighbors, my_son, num_cells,
-							board_height, board_width, goals_pos))
+                            board_height, board_width, goals_pos))
                 continue;
 /*
 	        queued_nodes++;

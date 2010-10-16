@@ -18,6 +18,9 @@
 #include"soko_node.h"
 #include"deadlock_check.h"
 #include"mfmc.h"
+
+#include"soko_heuristic.h"
+
 using namespace std;
 
 /**
