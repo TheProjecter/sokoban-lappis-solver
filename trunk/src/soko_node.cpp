@@ -333,6 +333,14 @@ void soko_node :: set_static_vars(int num_cells,
 
 }
 
+bool soko_node::equal(const soko_node *x,const soko_node *y) {
+	for(int i=0;i<soko_node::arr_size;i++)
+		if(x->box_pos[i]!=y->box_pos[i]
+			|| x->area[i]!=y->area[i])
+			return false;
+	return true;
+	}
+
 //...............
 
 

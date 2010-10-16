@@ -196,6 +196,9 @@ class soko_node{
                                 int num_boxes,
                                 int num_goals );
 
+	// true if x and y are equivalent
+	static bool equal(const soko_node *x,const soko_node *y);
+
   private:
     /**
      * Given a box and a neighbor of the box (both in

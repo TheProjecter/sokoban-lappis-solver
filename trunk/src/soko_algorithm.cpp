@@ -12,7 +12,7 @@
  *
  */
 #include "soko_algorithm.h"
-
+#include "hash_table.h"
 
 soko_node* breadth_first_search(soko_node *init_node, int board_height,
                                 int board_width,
@@ -73,6 +73,8 @@ soko_node* a_star_search(soko_node *init_node, int board_height,
                                 int *goals_pos, int *goals_rel_pos, int num_boxes,
                                 int num_goals) {
 
+	hash_table *ht=new hash_table();
+	
     //Precompute the min_dist_matrix to make possible the
     //calculations of heuristics and build the box_goal_distance
     //matrix to make it available for further use
@@ -142,16 +144,28 @@ soko_node* a_star_search(soko_node *init_node, int board_height,
                             num_neighbors, my_son, num_cells,
 							board_height, board_width, goals_pos))
                 continue;
-            queued_nodes++;
-    
-            //Calculate the heuristic of the node
-            my_son->calc_heur( num_boxes, num_goals, goals_rel_pos, 
-                                min_dist_matrix, box_goal_distance );
+/*
+	        queued_nodes++;
+	
+	        //Calculate the heuristic of the node
+	        my_son->calc_heur( num_boxes, num_goals, goals_rel_pos, 
+	                            min_dist_matrix, box_goal_distance );
+	        p_queue.push(my_son);
+*/
+			if(!ht->searchNode(my_son)) {
+		        queued_nodes++;
+		
+		        //Calculate the heuristic of the node
+		        my_son->calc_heur( num_boxes, num_goals, goals_rel_pos, 
+		                            min_dist_matrix, box_goal_distance );
 
-            p_queue.push(my_son);
+		        p_queue.push(my_son);
+			}
         }
         delete sons;
     }
+
+	ht->statistics();
 
     cout << "A* Results" << endl << ".............." << endl
          << "Generated nodes: " << generated_nodes << endl

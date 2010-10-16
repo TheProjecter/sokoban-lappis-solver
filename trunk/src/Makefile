@@ -19,6 +19,7 @@ SOURCES=\
 	soko_algorithm.cpp \
 	soko_heuristic.cpp \
 	mfmc.cpp \
+	hash_table.cpp \
 	hungarian.c
 
 default:
