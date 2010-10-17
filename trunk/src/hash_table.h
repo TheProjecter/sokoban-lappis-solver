@@ -22,8 +22,8 @@
 
 using namespace std;
 
-// for other primes around 400000 go to http://www.bigprimes.net/archive/prime/339/
-#define HASH_TABLE_DIM 400009
+// for other primes around 1000000 go to http://www.bigprimes.net/archive/prime/785/
+#define HASH_TABLE_DIM 1000003
 
 struct node{
     soko_node *info;
