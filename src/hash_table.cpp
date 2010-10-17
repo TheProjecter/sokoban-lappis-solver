@@ -18,6 +18,8 @@ extern int int_bits;
 
 using namespace std;
 
+// constructor of the hashtable, allocates the array
+// and initializes variables used for statictics
 hash_table :: hash_table(){
     this->HashTable = new node*[HASH_TABLE_DIM]();
 
@@ -33,16 +35,16 @@ void hash_table :: insertHash(soko_node *s_node){
     aux->info=s_node;
     aux->next=NULL;
     
+    // if the cell is empty, fill it for the first time
     if(this->HashTable[pos]==NULL) {
-        //cout << "insertHash: Inserts in a empty position" << endl;
         this->HashTable[pos]=aux;
         this->used_cells++;
         this->num_unary_cells++;
     }
     else {
+        // otherwise add the new node in the head
         if(this->HashTable[pos]->next==NULL)
-            this->num_unary_cells--;
-        //cout << "insertHash: Inserts in a position that was not empty" << endl;        
+            this->num_unary_cells--;   
         aux->next=this->HashTable[pos];
         this->HashTable[pos]=aux;
         
@@ -50,26 +52,28 @@ void hash_table :: insertHash(soko_node *s_node){
     this->num_nodes++;
 }
 
-// This function returns 'false' if the information is not in the table, and 'true' if it is in it
+// This function returns 'false' if the node is not in the table
+// and 'true' if it is in it
 bool hash_table :: searchNode(soko_node* s_node) {
     int pos=hash(s_node);
     
-    for(node* pcorr=this->HashTable[pos];pcorr!=NULL;pcorr=pcorr->next) {
-        if(soko_node::equal(pcorr->info,s_node)) {
-            //cout << "searchNode: The element exists in the table" << endl;
+    // search in the linked list of all elements with the same hash value
+    for(node* pcorr=this->HashTable[pos];pcorr!=NULL;pcorr=pcorr->next)
+        if(soko_node::equal(pcorr->info,s_node))
             return true;            
-        }
-    }
-    //cout << "searchNode: The element does not exist in the table" << endl;
+    // it also automatically inserts the node in the hash
     this->insertHash(s_node);
     return false;
 }
 
+// hash function for the hash table
 int hash_table :: hash(soko_node *s_node){
     long int h=0;
+    // hash function uses all information from the nodes
     for(int i=0;i<soko_node::arr_size;i++)
         h=(h<<int_bits/2) + s_node->area[i]^s_node->box_pos[i];
 
+    // and scrambles it a little
     h^=(h>>4);
     h=(h^0xdeadbeef)+(h<<5);
     h^=(h>>11);
@@ -77,6 +81,7 @@ int hash_table :: hash(soko_node *s_node){
     return h % HASH_TABLE_DIM;
 }
 
+// prints various statistics about the hash table
 void hash_table :: statistics(){
     int pos=-1;
     int max=0;
