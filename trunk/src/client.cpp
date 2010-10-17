@@ -3,7 +3,8 @@
  * DD2380 - Artificial Intelligence
  * Autumn 2010
  *
- * Simple sokoban solver
+ * Client used for conecting to the server
+ * and getting boards.
  *
  * @author  Kevin Anceau <anceau@kth.se>
  * @author  Andrea Baisero <baisero@kth.se>
@@ -28,10 +29,9 @@ void error(const char* format, ... ) {
 void read_from_file(char *filename,char **sol){
     FILE *file;
     char buffer[BUFFERSIZE];
-    char filepath[]="../test-cases/";
     int n;
 
-    file = fopen( strcat(filepath,filename) , "r");
+    file = fopen( filename , "r");
     if(file!=NULL){
         n = fread(buffer, 1, BUFFERSIZE, file);
         fclose(file);
