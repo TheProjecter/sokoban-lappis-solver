@@ -142,12 +142,16 @@ vector< soko_node* > *soko_node::get_sons(
 
     //Check which are the reachable boxes 
     for(int p1 = 0; p1 < soko_node::arr_size; p1++){
-        int mask = 1;
-        for(int p2 = 0; p2 < int_bits; ++p2 ){
 
-            if(!( this->box_pos[p1] & mask )){
-                mask <<= 1;
-                continue;
+        unsigned int my_reach_b = this->box_pos[p1] & this->area[p1];
+
+        int p2 = 0;
+        //for(int p2 = 0; p2 < int_bits && my_reach_b != 0; ++p2 )
+        while( my_reach_b != 0 ) {
+
+            while(!( my_reach_b & 1 )){
+                my_reach_b >>= 1;
+                p2++;
             }
         
             //box found! try to move it
@@ -220,8 +224,9 @@ vector< soko_node* > *soko_node::get_sons(
                 //Add, don't flood until it's really necessary
                 my_sons->push_back(son);
             }
-
-            mask <<= 1;
+            
+            my_reach_b >>= 1;
+            p2++;
         }
     }
     return my_sons;
