@@ -3,7 +3,8 @@
  * DD2380 - Artificial Intelligence
  * Autumn 2010
  *
- * Simple sokoban solver
+ * Client used for conecting to the server
+ * and getting boards.
  *
  * @author  Kevin Anceau <anceau@kth.se>
  * @author  Andrea Baisero <baisero@kth.se>

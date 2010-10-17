@@ -1,3 +1,18 @@
+/**
+ * KTH - Royal Institute of Technology
+ * DD2380 - Artificial Intelligence
+ * Autumn 2010
+ *
+ * Hungarian Method algorithm.
+ * Source code taken from:
+ * http://www.topcoder.com/tc?module=Static&d1=tutorials&d2=hungarianAlgorithm
+ *
+ * @author  Kevin Anceau <anceau@kth.se>
+ * @author  Andrea Baisero <baisero@kth.se>
+ * @author  Carlos Alberto Colmenares <cacol@kth.se>
+ * @author  Manuel Parras Ruiz De Azúa <mprda@kth.se>
+ *
+ */
 #include"hungarian_tc.h"
 
 #define N 55             //max number of vertices in one part

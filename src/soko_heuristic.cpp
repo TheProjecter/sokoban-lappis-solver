@@ -3,7 +3,7 @@
  * DD2380 - Artificial Intelligence
  * Autumn 2010
  *
- * Simple sokoban solver
+ * Heuristics used for the sokoban solver
  *
  * @author  Kevin Anceau <anceau@kth.se>
  * @author  Andrea Baisero <baisero@kth.se>

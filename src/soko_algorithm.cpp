@@ -3,7 +3,8 @@
  * DD2380 - Artificial Intelligence
  * Autumn 2010
  *
- * Simple sokoban solver
+ * Search algorithms used for finding a solution
+ * in the sokoban-solver
  *
  * @author  Kevin Anceau <anceau@kth.se>
  * @author  Andrea Baisero <baisero@kth.se>
@@ -93,6 +94,12 @@ soko_node* a_star_search(soko_node *init_node, int board_height,
     //                      board_width
     //        );
 
+    //int *min_dist_matrix =
+    //    manhattan_dist( num_cells,
+    //                      rel_to_abs_table,
+    //                      board_width
+    //        );
+
     //cout << endl << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>" << endl;
     //for(int i=0; i<num_cells;i++){
     //    for(int j=0; j<num_cells; j++){
@@ -138,7 +145,7 @@ soko_node* a_star_search(soko_node *init_node, int board_height,
         generated_nodes += sons->size();
 
         //cout << generated_nodes << endl;
-        if(expanded_nodes%10000 == 0){
+        if(expanded_nodes%50000 == 0){
             curr_node->print( board_height, board_width, abs_to_rel_table );
             cout << "Exp nodes: " << expanded_nodes << endl;
         }
@@ -154,8 +161,10 @@ soko_node* a_star_search(soko_node *init_node, int board_height,
             if (is_deadlock(rel_to_abs_table, abs_to_rel_table, 
                             deadlock_list, neighbors,
                             num_neighbors, my_son, num_cells,
-                            board_height, board_width, goals_pos))
+                            board_height, board_width, goals_pos)){
+                delete my_son;
                 continue;
+            }
 
             if(!ht->searchNode(my_son)) {
                 queued_nodes++;
@@ -165,6 +174,9 @@ soko_node* a_star_search(soko_node *init_node, int board_height,
                                     min_dist_matrix);
 
                 p_queue.push(my_son);
+            }
+            else{
+                delete my_son;
             }
         }
         delete sons;

@@ -3,7 +3,8 @@
  * DD2380 - Artificial Intelligence
  * Autumn 2010
  *
- * Simple sokoban solver
+ * Search algorithms used for finding a solution
+ * in the sokoban-solver
  *
  * @author  Kevin Anceau <anceau@kth.se>
  * @author  Andrea Baisero <baisero@kth.se>
@@ -17,8 +18,6 @@
 #include<queue>
 #include"soko_node.h"
 #include"deadlock_check.h"
-
-#include"soko_heuristic.h"
 
 using namespace std;
 

@@ -3,7 +3,7 @@
  * DD2380 - Artificial Intelligence
  * Autumn 2010
  *
- * Simple sokoban solver
+ * Representation of a node for the sokoban solver.
  *
  * @author  Kevin Anceau <anceau@kth.se>
  * @author  Andrea Baisero <baisero@kth.se>
@@ -44,6 +44,11 @@ soko_node :: soko_node(){
     this->push_dir='\0';
     this->father=NULL;
     this->depth=0;
+}
+
+soko_node :: ~soko_node(){
+    delete[] this->area;
+    delete[] this->box_pos;
 }
 
 void soko_node :: print( int board_height, int board_width,

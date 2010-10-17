@@ -22,7 +22,7 @@ SOURCES=\
 	hungarian_tc.cpp
 
 default:
-	g++ $(SOURCES) -o sokoban-lappis-solver
+	g++ $(SOURCES) -o sokoban-lappis-solver -O3
 
 clean:
 	rm sokoban-lappis-solver
