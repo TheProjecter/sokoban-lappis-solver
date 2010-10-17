@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
         read_from_file(argv[2],&sol);
     }
 
-    printf("SOLUTION:\n%s\n",sol);
+    cout << "SOLUTION:" << endl << sol << endl << endl;
 
     exit(0);
 }
