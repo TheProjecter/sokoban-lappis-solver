@@ -155,9 +155,11 @@ soko_node* a_star_search(soko_node *init_node, int board_height,
             soko_node *my_son = (*sons)[i];
 
             if( my_son->is_solution(goals_pos)){
-                sol_node = (*sons)[i];
+                my_son->compute_area(neighbors, num_neighbors);
+                sol_node = my_son;
                 break;
             }
+
             if (is_deadlock(rel_to_abs_table, abs_to_rel_table, 
                             deadlock_list, neighbors,
                             num_neighbors, my_son, num_cells,
@@ -165,6 +167,9 @@ soko_node* a_star_search(soko_node *init_node, int board_height,
                 delete my_son;
                 continue;
             }
+
+            //Compute area only for non deadlocked nodes!
+            my_son->compute_area(neighbors, num_neighbors);
 
             if(!ht->searchNode(my_son)) {
                 queued_nodes++;

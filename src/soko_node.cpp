@@ -33,6 +33,7 @@ soko_node :: soko_node(int last_pos, char push_dir, soko_node *father,
     this->push_dir = push_dir;
     this->father = father;
     this->depth = depth;
+    this->area = NULL;
 }
 
 
@@ -44,10 +45,13 @@ soko_node :: soko_node(){
     this->push_dir='\0';
     this->father=NULL;
     this->depth=0;
+    this->area = NULL;
 }
 
 soko_node :: ~soko_node(){
-    delete[] this->area;
+    if( this->area != NULL )
+        delete[] this->area;
+
     delete[] this->box_pos;
 }
 
@@ -213,8 +217,7 @@ vector< soko_node* > *soko_node::get_sons(
                 //put the new
                 son->box_pos[o1] |= 1<<o2;
 
-                //Flood and add
-                son->compute_area(neighbors, num_neighbors);
+                //Add, don't flood until it's really necessary
                 my_sons->push_back(son);
             }
 
