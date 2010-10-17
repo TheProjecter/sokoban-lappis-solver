@@ -142,6 +142,7 @@ bool init_deadlock_beside_wall(int *rel_to_abs_table,
     }
 }
 
+// returns true if the node is in a deadlock situation
 bool is_deadlock(int *rel_to_abs_table, int *abs_to_rel_table,
                  int *deadlock_list, int (*neighbors)[4], 
                  int *&num_neighbors, soko_node *node,
@@ -156,6 +157,7 @@ bool is_deadlock(int *rel_to_abs_table, int *abs_to_rel_table,
         if (deadlock_list[i] & node->box_pos[i])
             return true;
 
+    // if the node is in a freeze deadlock situation, return true
     if(is_freeze_deadlock(node,num_neighbors,
                         rel_to_abs_table,abs_to_rel_table,
                         num_cell,board_width, goals_pos))
@@ -163,6 +165,7 @@ bool is_deadlock(int *rel_to_abs_table, int *abs_to_rel_table,
     return false;
 }
 
+//checks if a node is in a freeze deadlock
 bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
                         int *rel_to_abs_table, int *abs_to_rel_table,
                         int num_cell, int board_width, int* goals_pos) {
@@ -173,6 +176,12 @@ bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
     int box_x=box_abs%board_width;
     int box_y=box_abs/board_width;
     
+    // to check for freeze deadlocks i create 3x3 matrixes which represent
+    // the imediate surrounding of the last pushed box this matrix is created
+    // in a way to eliminate different rotations: the box is always in [1][1]
+    // and the "man" should be after pushing the box is always in [2][1]
+
+    // initialize variables that permit to eliminate all different rotations
     bool swap=false;
     int inv_i=1;
     int inv_j=1;
@@ -198,8 +207,8 @@ bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
     }
     int box_rel=abs_to_rel_table[box_y*board_width+box_x];
 
+    // actually create the matrixes which neutralize all rotations
     bool box[3][3], wall[3][3], goal[3][3];
-
     for(int i=-1;i<2;i++) {
         for(int j=-1;j<2;j++) {
             int y=box_y+inv_i*(swap?j:i);
@@ -215,9 +224,13 @@ bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
         }
     }
     
+    // if the cell which is in front of the box [1][1] is empty,
+    // it can't be a freeze deadlock
     if(!box[0][1] && !wall[0][1])
         return false;
 
+    // studies the situation where 4 boxes/walls are arranged
+    // in four nearby cells: none of them can be moved anymore
     if((box[0][0] || wall[0][0])
         && (box[1][0] || wall[1][0])
         && (box[0][1] || wall[0][1])
@@ -227,6 +240,7 @@ bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
             || !wall[0][1] && !goal[0][1]))
             return true;
 
+    // other situation analogous to the last one
     if((box[0][1] || wall[0][1])
         && (box[0][2] || wall[0][2])
         && (box[1][2] || wall[1][2])
@@ -236,13 +250,21 @@ bool is_freeze_deadlock(soko_node *node, int *num_neighbors,
             || !wall[1][2] && !goal[1][2]))
             return true;
 
+    // another kind
     if(box[0][1] && ((wall[0][2] && wall[1][0]) || (wall[0][0] && wall[1][2]))
         && (!goal[1][1] || !goal[0][1]))
         return true;
 
+    // last kind
     if(wall[0][1] && ((box[1][0] && (!goal[1][1]||!goal[1][0]) && wall[2][0])
                     ||(box[1][2] && (!goal[1][1]||!goal[1][2]) && wall[2][2])))
         return true;
+
+    // this code works and looks for one last kind of freeze deadlocks
+    // it's when boxes create a "ladder" shape, in which none of them can be moved
+    // this kind of deadlock is so rare that including this test gets worse
+    // performances by a few seconds because there is more time wasted on making
+    // this check than the time gained thanks to this.
 /*
     bool tl_dl=true;
     bool tr_dl=true;

@@ -339,6 +339,8 @@ void soko_node :: set_static_vars(int num_cells,
 
 }
 
+// comparing function returns true if two nodes are equal
+// i.e. if they have the same boxes and same area.
 bool soko_node::equal(const soko_node *x,const soko_node *y) {
 	for(int i=0;i<soko_node::arr_size;i++)
 		if(x->box_pos[i]!=y->box_pos[i]

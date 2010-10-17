@@ -38,14 +38,44 @@ class hash_table{
     int used_cells;
     int num_unary_cells;
 
+    /**
+     * Constructor of the class
+     */
     hash_table();
 
+    /**
+     * Inserts a node in the Hash
+     *
+     * @param s_node            Pointer to the node we want to insert
+     *
+     * @return                  void
+     */
     void insertHash(soko_node *s_node);
 
+    /**
+     * Checks if a node is in the hash, if it isn't it also inserts it
+     *
+     * @param s_node            Pointer to the node we want to insert
+     *
+     * @return                  void
+     */
     bool searchNode(soko_node *s_node);
     
+    /**
+     * Hash function, returns an integer, used to map the nodes
+     * in the hash table
+     *
+     * @param s_node            Pointer to the node we want to insert
+     *
+     * @return                  the hash value of the node
+     */
     int hash(soko_node *s_node);
     
+    /**
+     * Prints the statistics of the whole table
+     *
+     * @return                  void
+     */
     void statistics();
 };
 
