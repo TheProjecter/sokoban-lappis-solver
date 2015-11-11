@@ -1,0 +1,1 @@
+A simple sokoban solver programmed as a final project for the course "DD2380" (Artificial Intelligence), imparted in autumn 2010 at KTH-Royal Institute of Technology. Stockholm, Sweden.
